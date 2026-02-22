@@ -1,6 +1,6 @@
 # vesselapi-python
 
-[![CI](https://github.com/vessel-api/vesselapi-python/actions/workflows/ci.yml/badge.svg)](https://github.com/vessel-api/vesselapi-python/actions/workflows/ci.yml)
+[![CI](https://github.com/vessel-api/vesselapi-python/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/vessel-api/vesselapi-python/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/vessel-api-python.svg)](https://pypi.org/project/vessel-api-python/)
 [![Python](https://img.shields.io/pypi/pyversions/vessel-api-python.svg)](https://pypi.org/project/vessel-api-python/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
