@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vessel-api-python"
+version = "1.0.0"
+description = "Python client for the Vessel Tracking API — maritime vessel tracking, port events, emissions, and navigation data."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [
+    { name = "Vessel API", email = "support@vesselapi.com" },
+]
+keywords = ["vesselapi", "maritime", "vessel", "tracking", "ais", "sdk"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
+]
+dependencies = [
+    "httpx>=0.27",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "respx>=0.21",
+    "ruff>=0.4",
+    "mypy>=1.10",
+]
+
+[project.urls]
+Documentation = "https://vesselapi.com/docs"
+Repository = "https://github.com/vessel-api/vesselapi-python"
+Issues = "https://github.com/vessel-api/vesselapi-python/issues"
+Changelog = "https://github.com/vessel-api/vesselapi-python/releases"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vessel_api_python"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B", "SIM"]
+ignore = ["E501"]  # Line length handled by formatter
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+markers = [
+    "smoke: live API tests requiring VESSELAPI_API_KEY",
+]
