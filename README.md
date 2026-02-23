@@ -67,6 +67,23 @@ asyncio.run(main())
 
 **37 methods total.**
 
+## Vessel Lookup & Location
+
+```python
+# Get vessel details by IMO number (defaults to IMO; pass filter_id_type="mmsi" for MMSI).
+vessel = client.vessels.get("9811000")
+print(f"{vessel.vessel.name} ({vessel.vessel.vessel_type})")
+
+# Get the vessel's latest AIS position.
+pos = client.vessels.position("9811000")
+print(f"Position: {pos.vessel_position.latitude}, {pos.vessel_position.longitude}")
+
+# Find all vessels within 10 km of Rotterdam.
+nearby = client.location.vessels_radius(latitude=51.9225, longitude=4.47917, radius=10000)
+for v in nearby.vessels or []:
+    print(f"{v.vessel_name} at {v.latitude}, {v.longitude}")
+```
+
 ## Error Handling
 
 All methods raise specific exception types on non-2xx responses:
@@ -92,15 +109,15 @@ Every list endpoint has an `all_*` / `list_all` variant returning an iterator:
 
 ```python
 # Sync
-for vessel in client.search.all_vessels(filter_name="tanker"):
+for vessel in client.search.all_vessels(filter_vessel_type="Tanker"):
     print(vessel.name)
 
 # Async
-async for vessel in client.search.all_vessels(filter_name="tanker"):
+async for vessel in client.search.all_vessels(filter_vessel_type="Tanker"):
     print(vessel.name)
 
-# Collect all at once
-vessels = client.search.all_vessels(filter_name="tanker").collect()
+# Collect a bounded set at once
+vessels = client.search.all_vessels(filter_vessel_type="Tanker", pagination_limit=50).collect()
 ```
 
 ## Configuration

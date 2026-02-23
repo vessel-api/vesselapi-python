@@ -4,7 +4,7 @@ import asyncio
 import os
 import sys
 
-from vesselapi import AsyncVesselClient, VesselAPIError
+from vessel_api_python import AsyncVesselClient, VesselAPIError
 
 
 async def main() -> None:
@@ -25,6 +25,24 @@ async def main() -> None:
         port = await client.ports.get("NLRTM")
         if port.port:
             print(f"Port: {port.port.name} ({port.port.unlo_code})")
+
+        # Get vessel details by IMO number (defaults to IMO; pass filter_id_type="mmsi" for MMSI).
+        print("\n--- Vessel by IMO ---")
+        vessel = await client.vessels.get("9811000")
+        if vessel.vessel:
+            print(f"Vessel: {vessel.vessel.name} (Type: {vessel.vessel.vessel_type})")
+
+        # Get the vessel's latest AIS position.
+        print("\n--- Vessel Position ---")
+        pos = await client.vessels.position("9811000")
+        if pos.vessel_position:
+            print(f"Position: {pos.vessel_position.latitude}, {pos.vessel_position.longitude}")
+
+        # Find vessels within 10 km of Rotterdam.
+        print("\n--- Vessels Near Rotterdam ---")
+        nearby = await client.location.vessels_radius(latitude=51.9225, longitude=4.47917, radius=10000)
+        for v in nearby.vessels or []:
+            print(f"{v.vessel_name} (IMO: {v.imo}) at {v.latitude}, {v.longitude}")
 
         # Error handling.
         print("\n--- Error Handling ---")

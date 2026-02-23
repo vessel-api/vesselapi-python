@@ -3,7 +3,7 @@
 import os
 import sys
 
-from vesselapi import VesselClient, VesselAPIError
+from vessel_api_python import VesselClient, VesselAPIError
 
 
 def main() -> None:
@@ -37,6 +37,25 @@ def main() -> None:
     port = client.ports.get("NLRTM")
     if port.port:
         print(f"Port: {port.port.name} ({port.port.unlo_code})")
+
+    # Get vessel details by IMO number (defaults to IMO; pass filter_id_type="mmsi" for MMSI).
+    print("\n--- Vessel by IMO ---")
+    vessel = client.vessels.get("9811000")
+    if vessel.vessel:
+        print(f"Vessel: {vessel.vessel.name} (Type: {vessel.vessel.vessel_type})")
+
+    # Get the vessel's latest AIS position.
+    print("\n--- Vessel Position ---")
+    pos = client.vessels.position("9811000")
+    if pos.vessel_position:
+        print(f"Position: {pos.vessel_position.latitude}, {pos.vessel_position.longitude}")
+        print(f"Speed: {pos.vessel_position.sog} knots, Heading: {pos.vessel_position.heading}")
+
+    # Find vessels within 10 km of Rotterdam.
+    print("\n--- Vessels Near Rotterdam ---")
+    nearby = client.location.vessels_radius(latitude=51.9225, longitude=4.47917, radius=10000)
+    for v in nearby.vessels or []:
+        print(f"{v.vessel_name} (IMO: {v.imo}) at {v.latitude}, {v.longitude}")
 
     # Handle a not-found port gracefully.
     print("\n--- Not Found Handling ---")
