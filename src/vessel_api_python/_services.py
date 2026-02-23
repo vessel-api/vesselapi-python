@@ -15,7 +15,9 @@ from typing import TYPE_CHECKING, Any
 from ._errors import error_from_response
 from ._iterator import AsyncIterator, SyncIterator
 from ._models import (
+    MODU,
     ClassificationResponse,
+    DGPSStation,
     DGPSStationsWithinLocationResponse,
     FindDGPSStationsResponse,
     FindLightAidsResponse,
@@ -23,20 +25,29 @@ from ._models import (
     FindPortsResponse,
     FindRadioBeaconsResponse,
     FindVesselsResponse,
+    LightAid,
     LightAidsWithinLocationResponse,
     MarineCasualtiesResponse,
+    MarineCasualty,
     MODUsWithinLocationResponse,
+    Navtex,
     NavtexMessagesResponse,
+    Port,
+    PortEvent,
     PortEventResponse,
     PortEventsResponse,
     PortResponse,
     PortsWithinLocationResponse,
+    RadioBeacon,
     RadioBeaconsWithinLocationResponse,
     TypesInspectionDetailResponse,
     TypesInspectionsResponse,
     TypesOwnershipResponse,
+    Vessel,
+    VesselEmission,
     VesselEmissionsResponse,
     VesselETAResponse,
+    VesselPosition,
     VesselPositionResponse,
     VesselPositionsResponse,
     VesselResponse,
@@ -125,30 +136,30 @@ class VesselsService:
 
     # --- Iterators ---
 
-    def all_casualties(self, vessel_id: str, *, filter_id_type: str = "imo", pagination_limit: int | None = None) -> SyncIterator[Any]:
+    def all_casualties(self, vessel_id: str, *, filter_id_type: str = "imo", pagination_limit: int | None = None) -> SyncIterator[MarineCasualty]:
         """Iterate over all casualties for a vessel across pages."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[MarineCasualty], str | None]:
             nonlocal token
             resp = self.casualties(vessel_id, filter_id_type=filter_id_type, pagination_limit=pagination_limit, pagination_next_token=token)
             token = resp.next_token
             return resp.casualties or [], token
         return SyncIterator(fetch)
 
-    def all_emissions(self, vessel_id: str, *, filter_id_type: str = "imo", pagination_limit: int | None = None) -> SyncIterator[Any]:
+    def all_emissions(self, vessel_id: str, *, filter_id_type: str = "imo", pagination_limit: int | None = None) -> SyncIterator[VesselEmission]:
         """Iterate over all emissions for a vessel across pages."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[VesselEmission], str | None]:
             nonlocal token
             resp = self.emissions(vessel_id, filter_id_type=filter_id_type, pagination_limit=pagination_limit, pagination_next_token=token)
             token = resp.next_token
             return resp.emissions or [], token
         return SyncIterator(fetch)
 
-    def all_positions(self, *, filter_id_type: str = "imo", filter_ids: str | None = None, pagination_limit: int | None = None) -> SyncIterator[Any]:
+    def all_positions(self, *, filter_id_type: str = "imo", filter_ids: str | None = None, pagination_limit: int | None = None) -> SyncIterator[VesselPosition]:
         """Iterate over all positions for multiple vessels across pages."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[VesselPosition], str | None]:
             nonlocal token
             resp = self.positions(filter_id_type=filter_id_type, filter_ids=filter_ids, pagination_limit=pagination_limit, pagination_next_token=token)
             token = resp.next_token
@@ -213,50 +224,50 @@ class PortEventsService:
 
     # --- Iterators ---
 
-    def list_all(self, **kwargs: Any) -> SyncIterator[Any]:
+    def list_all(self, **kwargs: Any) -> SyncIterator[PortEvent]:
         """Iterate over all port events across pages."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[PortEvent], str | None]:
             nonlocal token
             resp = self.list(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.port_events or [], token
         return SyncIterator(fetch)
 
-    def all_by_port(self, unlocode: str, **kwargs: Any) -> SyncIterator[Any]:
+    def all_by_port(self, unlocode: str, **kwargs: Any) -> SyncIterator[PortEvent]:
         """Iterate over all port events for a specific port."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[PortEvent], str | None]:
             nonlocal token
             resp = self.by_port(unlocode, **kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.port_events or [], token
         return SyncIterator(fetch)
 
-    def all_by_ports(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_by_ports(self, **kwargs: Any) -> SyncIterator[PortEvent]:
         """Iterate over all port events by port name search."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[PortEvent], str | None]:
             nonlocal token
             resp = self.by_ports(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.port_events or [], token
         return SyncIterator(fetch)
 
-    def all_by_vessel(self, vessel_id: str, **kwargs: Any) -> SyncIterator[Any]:
+    def all_by_vessel(self, vessel_id: str, **kwargs: Any) -> SyncIterator[PortEvent]:
         """Iterate over all port events for a vessel."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[PortEvent], str | None]:
             nonlocal token
             resp = self.by_vessel(vessel_id, **kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.port_events or [], token
         return SyncIterator(fetch)
 
-    def all_by_vessels(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_by_vessels(self, **kwargs: Any) -> SyncIterator[PortEvent]:
         """Iterate over all port events by vessel name search."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[PortEvent], str | None]:
             nonlocal token
             resp = self.by_vessels(**kwargs, pagination_next_token=token)
             token = resp.next_token
@@ -276,10 +287,10 @@ class EmissionsService:
         error_from_response(r.status_code, r.content)
         return VesselEmissionsResponse.model_validate(r.json())
 
-    def list_all(self, **kwargs: Any) -> SyncIterator[Any]:
+    def list_all(self, **kwargs: Any) -> SyncIterator[VesselEmission]:
         """Iterate over all emissions across pages."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[VesselEmission], str | None]:
             nonlocal token
             resp = self.list(**kwargs, pagination_next_token=token)
             token = resp.next_token
@@ -331,60 +342,60 @@ class SearchService:
 
     # --- Iterators ---
 
-    def all_vessels(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_vessels(self, **kwargs: Any) -> SyncIterator[Vessel]:
         """Iterate over all vessel search results across pages."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[Vessel], str | None]:
             nonlocal token
             resp = self.vessels(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.vessels or [], token
         return SyncIterator(fetch)
 
-    def all_ports(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_ports(self, **kwargs: Any) -> SyncIterator[Port]:
         """Iterate over all port search results across pages."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[Port], str | None]:
             nonlocal token
             resp = self.ports(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.ports or [], token
         return SyncIterator(fetch)
 
-    def all_dgps(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_dgps(self, **kwargs: Any) -> SyncIterator[DGPSStation]:
         """Iterate over all DGPS station search results."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[DGPSStation], str | None]:
             nonlocal token
             resp = self.dgps(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.dgps_stations or [], token
         return SyncIterator(fetch)
 
-    def all_light_aids(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_light_aids(self, **kwargs: Any) -> SyncIterator[LightAid]:
         """Iterate over all light aid search results."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[LightAid], str | None]:
             nonlocal token
             resp = self.light_aids(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.light_aids or [], token
         return SyncIterator(fetch)
 
-    def all_modus(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_modus(self, **kwargs: Any) -> SyncIterator[MODU]:
         """Iterate over all MODU search results."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[MODU], str | None]:
             nonlocal token
             resp = self.modus(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.modus or [], token
         return SyncIterator(fetch)
 
-    def all_radio_beacons(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_radio_beacons(self, **kwargs: Any) -> SyncIterator[RadioBeacon]:
         """Iterate over all radio beacon search results."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[RadioBeacon], str | None]:
             nonlocal token
             resp = self.radio_beacons(**kwargs, pagination_next_token=token)
             token = resp.next_token
@@ -472,120 +483,120 @@ class LocationService:
 
     # --- Iterators ---
 
-    def all_vessels_bounding_box(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_vessels_bounding_box(self, **kwargs: Any) -> SyncIterator[VesselPosition]:
         """Iterate over all vessel positions in a bounding box."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[VesselPosition], str | None]:
             nonlocal token
             resp = self.vessels_bounding_box(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.vessels or [], token
         return SyncIterator(fetch)
 
-    def all_vessels_radius(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_vessels_radius(self, **kwargs: Any) -> SyncIterator[VesselPosition]:
         """Iterate over all vessel positions within a radius."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[VesselPosition], str | None]:
             nonlocal token
             resp = self.vessels_radius(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.vessels or [], token
         return SyncIterator(fetch)
 
-    def all_ports_bounding_box(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_ports_bounding_box(self, **kwargs: Any) -> SyncIterator[Port]:
         """Iterate over all ports in a bounding box."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[Port], str | None]:
             nonlocal token
             resp = self.ports_bounding_box(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.ports or [], token
         return SyncIterator(fetch)
 
-    def all_ports_radius(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_ports_radius(self, **kwargs: Any) -> SyncIterator[Port]:
         """Iterate over all ports within a radius."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[Port], str | None]:
             nonlocal token
             resp = self.ports_radius(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.ports or [], token
         return SyncIterator(fetch)
 
-    def all_dgps_bounding_box(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_dgps_bounding_box(self, **kwargs: Any) -> SyncIterator[DGPSStation]:
         """Iterate over all DGPS stations in a bounding box."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[DGPSStation], str | None]:
             nonlocal token
             resp = self.dgps_bounding_box(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.dgps_stations or [], token
         return SyncIterator(fetch)
 
-    def all_dgps_radius(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_dgps_radius(self, **kwargs: Any) -> SyncIterator[DGPSStation]:
         """Iterate over all DGPS stations within a radius."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[DGPSStation], str | None]:
             nonlocal token
             resp = self.dgps_radius(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.dgps_stations or [], token
         return SyncIterator(fetch)
 
-    def all_light_aids_bounding_box(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_light_aids_bounding_box(self, **kwargs: Any) -> SyncIterator[LightAid]:
         """Iterate over all light aids in a bounding box."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[LightAid], str | None]:
             nonlocal token
             resp = self.light_aids_bounding_box(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.light_aids or [], token
         return SyncIterator(fetch)
 
-    def all_light_aids_radius(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_light_aids_radius(self, **kwargs: Any) -> SyncIterator[LightAid]:
         """Iterate over all light aids within a radius."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[LightAid], str | None]:
             nonlocal token
             resp = self.light_aids_radius(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.light_aids or [], token
         return SyncIterator(fetch)
 
-    def all_modus_bounding_box(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_modus_bounding_box(self, **kwargs: Any) -> SyncIterator[MODU]:
         """Iterate over all MODUs in a bounding box."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[MODU], str | None]:
             nonlocal token
             resp = self.modus_bounding_box(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.modus or [], token
         return SyncIterator(fetch)
 
-    def all_modus_radius(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_modus_radius(self, **kwargs: Any) -> SyncIterator[MODU]:
         """Iterate over all MODUs within a radius."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[MODU], str | None]:
             nonlocal token
             resp = self.modus_radius(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.modus or [], token
         return SyncIterator(fetch)
 
-    def all_radio_beacons_bounding_box(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_radio_beacons_bounding_box(self, **kwargs: Any) -> SyncIterator[RadioBeacon]:
         """Iterate over all radio beacons in a bounding box."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[RadioBeacon], str | None]:
             nonlocal token
             resp = self.radio_beacons_bounding_box(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.radio_beacons or [], token
         return SyncIterator(fetch)
 
-    def all_radio_beacons_radius(self, **kwargs: Any) -> SyncIterator[Any]:
+    def all_radio_beacons_radius(self, **kwargs: Any) -> SyncIterator[RadioBeacon]:
         """Iterate over all radio beacons within a radius."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[RadioBeacon], str | None]:
             nonlocal token
             resp = self.radio_beacons_radius(**kwargs, pagination_next_token=token)
             token = resp.next_token
@@ -605,10 +616,10 @@ class NavtexService:
         error_from_response(r.status_code, r.content)
         return NavtexMessagesResponse.model_validate(r.json())
 
-    def list_all(self, **kwargs: Any) -> SyncIterator[Any]:
+    def list_all(self, **kwargs: Any) -> SyncIterator[Navtex]:
         """Iterate over all NAVTEX messages across pages."""
         token: str | None = None
-        def fetch() -> tuple[list[Any], str | None]:
+        def fetch() -> tuple[list[Navtex], str | None]:
             nonlocal token
             resp = self.list(**kwargs, pagination_next_token=token)
             token = resp.next_token
@@ -689,30 +700,30 @@ class AsyncVesselsService:
 
     # --- Iterators ---
 
-    def all_casualties(self, vessel_id: str, *, filter_id_type: str = "imo", pagination_limit: int | None = None) -> AsyncIterator[Any]:
+    def all_casualties(self, vessel_id: str, *, filter_id_type: str = "imo", pagination_limit: int | None = None) -> AsyncIterator[MarineCasualty]:
         """Iterate over all casualties for a vessel across pages."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[MarineCasualty], str | None]:
             nonlocal token
             resp = await self.casualties(vessel_id, filter_id_type=filter_id_type, pagination_limit=pagination_limit, pagination_next_token=token)
             token = resp.next_token
             return resp.casualties or [], token
         return AsyncIterator(fetch)
 
-    def all_emissions(self, vessel_id: str, *, filter_id_type: str = "imo", pagination_limit: int | None = None) -> AsyncIterator[Any]:
+    def all_emissions(self, vessel_id: str, *, filter_id_type: str = "imo", pagination_limit: int | None = None) -> AsyncIterator[VesselEmission]:
         """Iterate over all emissions for a vessel across pages."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[VesselEmission], str | None]:
             nonlocal token
             resp = await self.emissions(vessel_id, filter_id_type=filter_id_type, pagination_limit=pagination_limit, pagination_next_token=token)
             token = resp.next_token
             return resp.emissions or [], token
         return AsyncIterator(fetch)
 
-    def all_positions(self, *, filter_id_type: str = "imo", filter_ids: str | None = None, pagination_limit: int | None = None) -> AsyncIterator[Any]:
+    def all_positions(self, *, filter_id_type: str = "imo", filter_ids: str | None = None, pagination_limit: int | None = None) -> AsyncIterator[VesselPosition]:
         """Iterate over all positions for multiple vessels across pages."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[VesselPosition], str | None]:
             nonlocal token
             resp = await self.positions(filter_id_type=filter_id_type, filter_ids=filter_ids, pagination_limit=pagination_limit, pagination_next_token=token)
             token = resp.next_token
@@ -777,50 +788,50 @@ class AsyncPortEventsService:
 
     # --- Iterators ---
 
-    def list_all(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def list_all(self, **kwargs: Any) -> AsyncIterator[PortEvent]:
         """Iterate over all port events across pages."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[PortEvent], str | None]:
             nonlocal token
             resp = await self.list(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.port_events or [], token
         return AsyncIterator(fetch)
 
-    def all_by_port(self, unlocode: str, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_by_port(self, unlocode: str, **kwargs: Any) -> AsyncIterator[PortEvent]:
         """Iterate over all port events for a specific port."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[PortEvent], str | None]:
             nonlocal token
             resp = await self.by_port(unlocode, **kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.port_events or [], token
         return AsyncIterator(fetch)
 
-    def all_by_ports(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_by_ports(self, **kwargs: Any) -> AsyncIterator[PortEvent]:
         """Iterate over all port events by port name search."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[PortEvent], str | None]:
             nonlocal token
             resp = await self.by_ports(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.port_events or [], token
         return AsyncIterator(fetch)
 
-    def all_by_vessel(self, vessel_id: str, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_by_vessel(self, vessel_id: str, **kwargs: Any) -> AsyncIterator[PortEvent]:
         """Iterate over all port events for a vessel."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[PortEvent], str | None]:
             nonlocal token
             resp = await self.by_vessel(vessel_id, **kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.port_events or [], token
         return AsyncIterator(fetch)
 
-    def all_by_vessels(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_by_vessels(self, **kwargs: Any) -> AsyncIterator[PortEvent]:
         """Iterate over all port events by vessel name search."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[PortEvent], str | None]:
             nonlocal token
             resp = await self.by_vessels(**kwargs, pagination_next_token=token)
             token = resp.next_token
@@ -840,10 +851,10 @@ class AsyncEmissionsService:
         error_from_response(r.status_code, r.content)
         return VesselEmissionsResponse.model_validate(r.json())
 
-    def list_all(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def list_all(self, **kwargs: Any) -> AsyncIterator[VesselEmission]:
         """Iterate over all emissions across pages."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[VesselEmission], str | None]:
             nonlocal token
             resp = await self.list(**kwargs, pagination_next_token=token)
             token = resp.next_token
@@ -895,60 +906,60 @@ class AsyncSearchService:
 
     # --- Iterators ---
 
-    def all_vessels(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_vessels(self, **kwargs: Any) -> AsyncIterator[Vessel]:
         """Iterate over all vessel search results."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[Vessel], str | None]:
             nonlocal token
             resp = await self.vessels(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.vessels or [], token
         return AsyncIterator(fetch)
 
-    def all_ports(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_ports(self, **kwargs: Any) -> AsyncIterator[Port]:
         """Iterate over all port search results."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[Port], str | None]:
             nonlocal token
             resp = await self.ports(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.ports or [], token
         return AsyncIterator(fetch)
 
-    def all_dgps(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_dgps(self, **kwargs: Any) -> AsyncIterator[DGPSStation]:
         """Iterate over all DGPS station search results."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[DGPSStation], str | None]:
             nonlocal token
             resp = await self.dgps(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.dgps_stations or [], token
         return AsyncIterator(fetch)
 
-    def all_light_aids(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_light_aids(self, **kwargs: Any) -> AsyncIterator[LightAid]:
         """Iterate over all light aid search results."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[LightAid], str | None]:
             nonlocal token
             resp = await self.light_aids(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.light_aids or [], token
         return AsyncIterator(fetch)
 
-    def all_modus(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_modus(self, **kwargs: Any) -> AsyncIterator[MODU]:
         """Iterate over all MODU search results."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[MODU], str | None]:
             nonlocal token
             resp = await self.modus(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.modus or [], token
         return AsyncIterator(fetch)
 
-    def all_radio_beacons(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_radio_beacons(self, **kwargs: Any) -> AsyncIterator[RadioBeacon]:
         """Iterate over all radio beacon search results."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[RadioBeacon], str | None]:
             nonlocal token
             resp = await self.radio_beacons(**kwargs, pagination_next_token=token)
             token = resp.next_token
@@ -1036,120 +1047,120 @@ class AsyncLocationService:
 
     # --- Iterators ---
 
-    def all_vessels_bounding_box(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_vessels_bounding_box(self, **kwargs: Any) -> AsyncIterator[VesselPosition]:
         """Iterate over all vessel positions in a bounding box."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[VesselPosition], str | None]:
             nonlocal token
             resp = await self.vessels_bounding_box(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.vessels or [], token
         return AsyncIterator(fetch)
 
-    def all_vessels_radius(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_vessels_radius(self, **kwargs: Any) -> AsyncIterator[VesselPosition]:
         """Iterate over all vessel positions within a radius."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[VesselPosition], str | None]:
             nonlocal token
             resp = await self.vessels_radius(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.vessels or [], token
         return AsyncIterator(fetch)
 
-    def all_ports_bounding_box(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_ports_bounding_box(self, **kwargs: Any) -> AsyncIterator[Port]:
         """Iterate over all ports in a bounding box."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[Port], str | None]:
             nonlocal token
             resp = await self.ports_bounding_box(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.ports or [], token
         return AsyncIterator(fetch)
 
-    def all_ports_radius(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_ports_radius(self, **kwargs: Any) -> AsyncIterator[Port]:
         """Iterate over all ports within a radius."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[Port], str | None]:
             nonlocal token
             resp = await self.ports_radius(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.ports or [], token
         return AsyncIterator(fetch)
 
-    def all_dgps_bounding_box(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_dgps_bounding_box(self, **kwargs: Any) -> AsyncIterator[DGPSStation]:
         """Iterate over all DGPS stations in a bounding box."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[DGPSStation], str | None]:
             nonlocal token
             resp = await self.dgps_bounding_box(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.dgps_stations or [], token
         return AsyncIterator(fetch)
 
-    def all_dgps_radius(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_dgps_radius(self, **kwargs: Any) -> AsyncIterator[DGPSStation]:
         """Iterate over all DGPS stations within a radius."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[DGPSStation], str | None]:
             nonlocal token
             resp = await self.dgps_radius(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.dgps_stations or [], token
         return AsyncIterator(fetch)
 
-    def all_light_aids_bounding_box(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_light_aids_bounding_box(self, **kwargs: Any) -> AsyncIterator[LightAid]:
         """Iterate over all light aids in a bounding box."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[LightAid], str | None]:
             nonlocal token
             resp = await self.light_aids_bounding_box(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.light_aids or [], token
         return AsyncIterator(fetch)
 
-    def all_light_aids_radius(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_light_aids_radius(self, **kwargs: Any) -> AsyncIterator[LightAid]:
         """Iterate over all light aids within a radius."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[LightAid], str | None]:
             nonlocal token
             resp = await self.light_aids_radius(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.light_aids or [], token
         return AsyncIterator(fetch)
 
-    def all_modus_bounding_box(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_modus_bounding_box(self, **kwargs: Any) -> AsyncIterator[MODU]:
         """Iterate over all MODUs in a bounding box."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[MODU], str | None]:
             nonlocal token
             resp = await self.modus_bounding_box(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.modus or [], token
         return AsyncIterator(fetch)
 
-    def all_modus_radius(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_modus_radius(self, **kwargs: Any) -> AsyncIterator[MODU]:
         """Iterate over all MODUs within a radius."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[MODU], str | None]:
             nonlocal token
             resp = await self.modus_radius(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.modus or [], token
         return AsyncIterator(fetch)
 
-    def all_radio_beacons_bounding_box(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_radio_beacons_bounding_box(self, **kwargs: Any) -> AsyncIterator[RadioBeacon]:
         """Iterate over all radio beacons in a bounding box."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[RadioBeacon], str | None]:
             nonlocal token
             resp = await self.radio_beacons_bounding_box(**kwargs, pagination_next_token=token)
             token = resp.next_token
             return resp.radio_beacons or [], token
         return AsyncIterator(fetch)
 
-    def all_radio_beacons_radius(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def all_radio_beacons_radius(self, **kwargs: Any) -> AsyncIterator[RadioBeacon]:
         """Iterate over all radio beacons within a radius."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[RadioBeacon], str | None]:
             nonlocal token
             resp = await self.radio_beacons_radius(**kwargs, pagination_next_token=token)
             token = resp.next_token
@@ -1169,10 +1180,10 @@ class AsyncNavtexService:
         error_from_response(r.status_code, r.content)
         return NavtexMessagesResponse.model_validate(r.json())
 
-    def list_all(self, **kwargs: Any) -> AsyncIterator[Any]:
+    def list_all(self, **kwargs: Any) -> AsyncIterator[Navtex]:
         """Iterate over all NAVTEX messages across pages."""
         token: str | None = None
-        async def fetch() -> tuple[list[Any], str | None]:
+        async def fetch() -> tuple[list[Navtex], str | None]:
             nonlocal token
             resp = await self.list(**kwargs, pagination_next_token=token)
             token = resp.next_token
