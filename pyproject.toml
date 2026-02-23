@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "vessel-api-python"
-version = "1.0.0"
+version = "1.1.0"
 description = "Python client for the Vessel Tracking API — maritime vessel tracking, port events, emissions, and navigation data."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -14,7 +14,7 @@ authors = [
 ]
 keywords = ["vesselapi", "maritime", "vessel", "tracking", "ais", "sdk"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",

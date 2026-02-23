@@ -6,7 +6,7 @@ lint:
 	ruff check src/ tests/
 
 typecheck:
-	mypy src/vesselapi/
+	mypy src/vessel_api_python/
 
 test:
 	pytest -v tests/
