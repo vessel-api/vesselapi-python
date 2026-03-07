@@ -36,6 +36,7 @@ from ._models import (
     PortEvent,
     PortEventResponse,
     PortEventsResponse,
+    PortInboundResponse,
     PortResponse,
     PortsWithinLocationResponse,
     RadioBeacon,
@@ -46,6 +47,7 @@ from ._models import (
     Vessel,
     VesselEmission,
     VesselEmissionsResponse,
+    VesselETA,
     VesselETAResponse,
     VesselPosition,
     VesselPositionResponse,
@@ -178,6 +180,22 @@ class PortsService:
         r = self._client.get(f"/port/{unlocode}")
         error_from_response(r.status_code, r.content)
         return PortResponse.model_validate(r.json())
+
+    def inbound(self, unlocode: str, *, eta_from: str, eta_to: str, time_from: str | None = None, time_to: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> PortInboundResponse:
+        """Retrieve vessels heading to a port."""
+        r = self._client.get(f"/port/{unlocode}/inbound", params=_strip_none({"filter.etaFrom": eta_from, "filter.etaTo": eta_to, "time.from": time_from, "time.to": time_to, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
+        error_from_response(r.status_code, r.content)
+        return PortInboundResponse.model_validate(r.json())
+
+    def inbound_all(self, unlocode: str, *, eta_from: str, eta_to: str, time_from: str | None = None, time_to: str | None = None, pagination_limit: int | None = None) -> SyncIterator[VesselETA]:
+        """Iterate over all inbound vessels for a port across pages."""
+        token: str | None = None
+        def fetch() -> tuple[list[VesselETA], str | None]:
+            nonlocal token
+            resp = self.inbound(unlocode, eta_from=eta_from, eta_to=eta_to, time_from=time_from, time_to=time_to, pagination_limit=pagination_limit, pagination_next_token=token)
+            token = resp.next_token
+            return resp.vessel_etas or [], token
+        return SyncIterator(fetch)
 
 
 class PortEventsService:
@@ -742,6 +760,22 @@ class AsyncPortsService:
         r = await self._client.get(f"/port/{unlocode}")
         error_from_response(r.status_code, r.content)
         return PortResponse.model_validate(r.json())
+
+    async def inbound(self, unlocode: str, *, eta_from: str, eta_to: str, time_from: str | None = None, time_to: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> PortInboundResponse:
+        """Retrieve vessels heading to a port."""
+        r = await self._client.get(f"/port/{unlocode}/inbound", params=_strip_none({"filter.etaFrom": eta_from, "filter.etaTo": eta_to, "time.from": time_from, "time.to": time_to, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
+        error_from_response(r.status_code, r.content)
+        return PortInboundResponse.model_validate(r.json())
+
+    def inbound_all(self, unlocode: str, *, eta_from: str, eta_to: str, time_from: str | None = None, time_to: str | None = None, pagination_limit: int | None = None) -> AsyncIterator[VesselETA]:
+        """Iterate over all inbound vessels for a port across pages."""
+        token: str | None = None
+        async def fetch() -> tuple[list[VesselETA], str | None]:
+            nonlocal token
+            resp = await self.inbound(unlocode, eta_from=eta_from, eta_to=eta_to, time_from=time_from, time_to=time_to, pagination_limit=pagination_limit, pagination_next_token=token)
+            token = resp.next_token
+            return resp.vessel_etas or [], token
+        return AsyncIterator(fetch)
 
 
 class AsyncPortEventsService:

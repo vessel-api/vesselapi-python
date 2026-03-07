@@ -62,6 +62,58 @@ class TestPortsService:
             assert result.port.name == "Rotterdam"
             client.close()
 
+    def test_inbound(self) -> None:
+        with respx.mock() as mock:
+            route = mock.get("https://api.vesselapi.com/v1/port/NLRTM/inbound").mock(
+                return_value=httpx.Response(200, json={
+                    "vesselETAs": [
+                        {"imo": 9363728, "vessel_name": "Ever Given", "eta": "2026-03-10T12:00:00Z", "destination_port": "NLRTM"},
+                    ],
+                    "nextToken": None,
+                })
+            )
+            client = VesselClient(api_key="key", max_retries=0)
+            result = client.ports.inbound("NLRTM", eta_from="2026-03-07T00:00:00Z", eta_to="2026-03-14T00:00:00Z")
+            assert result.vessel_etas is not None
+            assert len(result.vessel_etas) == 1
+            assert result.vessel_etas[0].imo == 9363728
+            assert result.vessel_etas[0].vessel_name == "Ever Given"
+            # Verify filter params are sent.
+            url = str(route.calls[0].request.url)
+            assert "filter.etaFrom=2026-03-07" in url
+            assert "filter.etaTo=2026-03-14" in url
+            client.close()
+
+
+class TestResolutionMeta:
+    """Tests for _meta deserialization on response models."""
+
+    def test_meta_on_vessel_response(self) -> None:
+        with respx.mock() as mock:
+            mock.get("https://api.vesselapi.com/v1/vessel/477045900").mock(
+                return_value=httpx.Response(200, json={
+                    "vessel": {"imo": 9363728, "mmsi": 477045900},
+                    "_meta": {"requestedIdType": "imo", "resolvedIdType": "mmsi", "resolvedId": 477045900},
+                })
+            )
+            client = VesselClient(api_key="key", max_retries=0)
+            result = client.vessels.get("477045900", filter_id_type="imo")
+            assert result.meta is not None
+            assert result.meta.requested_id_type == "imo"
+            assert result.meta.resolved_id_type == "mmsi"
+            assert result.meta.resolved_id == 477045900
+            client.close()
+
+    def test_meta_absent_when_no_fallback(self) -> None:
+        with respx.mock() as mock:
+            mock.get("https://api.vesselapi.com/v1/vessel/9363728").mock(
+                return_value=httpx.Response(200, json={"vessel": {"imo": 9363728}})
+            )
+            client = VesselClient(api_key="key", max_retries=0)
+            result = client.vessels.get("9363728")
+            assert result.meta is None
+            client.close()
+
 
 class TestSearchService:
     """Tests for the SearchService."""

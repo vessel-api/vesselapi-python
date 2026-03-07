@@ -225,6 +225,18 @@ class ClassificationYard(_Base):
 
 
 # ---------------------------------------------------------------------------
+# Resolution metadata
+# ---------------------------------------------------------------------------
+
+
+class ResolutionMeta(_Base):
+    """Metadata about ID resolution fallback. Present when the API resolved using a different ID type."""
+    requested_id_type: str | None = Field(default=None, alias="requestedIdType")
+    resolved_id_type: str | None = Field(default=None, alias="resolvedIdType")
+    resolved_id: int | None = Field(default=None, alias="resolvedId")
+
+
+# ---------------------------------------------------------------------------
 # Vessel models
 # ---------------------------------------------------------------------------
 
@@ -264,6 +276,7 @@ class VesselResponse(_Base):
     """Response for a single vessel lookup."""
 
     vessel: Vessel | None = None
+    meta: ResolutionMeta | None = Field(default=None, alias="_meta")
 
 
 class VesselPosition(_Base):
@@ -290,6 +303,7 @@ class VesselPositionResponse(_Base):
     vessel_position: VesselPosition | None = Field(
         default=None, alias="vesselPosition"
     )
+    meta: ResolutionMeta | None = Field(default=None, alias="_meta")
 
 
 class VesselPositionsResponse(_Base):
@@ -299,6 +313,7 @@ class VesselPositionsResponse(_Base):
         default=None, alias="vesselPositions"
     )
     next_token: str | None = Field(default=None, alias="nextToken")
+    meta: ResolutionMeta | None = Field(default=None, alias="_meta")
 
 
 # ---------------------------------------------------------------------------
@@ -352,6 +367,7 @@ class MarineCasualtiesResponse(_Base):
 
     casualties: list[MarineCasualty] | None = None
     next_token: str | None = Field(default=None, alias="nextToken")
+    meta: ResolutionMeta | None = Field(default=None, alias="_meta")
 
 
 class ClassificationVessel(_Base):
@@ -379,6 +395,7 @@ class ClassificationResponse(_Base):
     """Response for vessel classification."""
 
     classification: ClassificationVessel | None = None
+    meta: ResolutionMeta | None = Field(default=None, alias="_meta")
 
 
 class VesselEmission(_Base):
@@ -432,12 +449,14 @@ class VesselEmissionsResponse(_Base):
 
     emissions: list[VesselEmission] | None = None
     next_token: str | None = Field(default=None, alias="nextToken")
+    meta: ResolutionMeta | None = Field(default=None, alias="_meta")
 
 
 class VesselETA(_Base):
     """Vessel Estimated Time of Arrival information."""
 
     destination: str | None = None
+    destination_port: str | None = None
     draught: float | None = None
     eta: str | None = None
     imo: int | None = None
@@ -450,6 +469,13 @@ class VesselETAResponse(_Base):
     """Response for vessel ETA."""
 
     vessel_eta: VesselETA | None = Field(default=None, alias="vesselEta")
+    meta: ResolutionMeta | None = Field(default=None, alias="_meta")
+
+
+class PortInboundResponse(_Base):
+    """Response containing vessels heading to a port."""
+    vessel_etas: list[VesselETA] | None = Field(default=None, alias="vesselETAs")
+    next_token: str | None = Field(default=None, alias="nextToken")
 
 
 # ---------------------------------------------------------------------------
@@ -652,12 +678,14 @@ class PortEventsResponse(_Base):
         default=None, alias="portEvents"
     )
     next_token: str | None = Field(default=None, alias="nextToken")
+    meta: ResolutionMeta | None = Field(default=None, alias="_meta")
 
 
 class PortEventResponse(_Base):
     """Response for a single port event (e.g. last by vessel)."""
 
     port_event: PortEvent | None = Field(default=None, alias="portEvent")
+    meta: ResolutionMeta | None = Field(default=None, alias="_meta")
 
 
 # ---------------------------------------------------------------------------

@@ -95,7 +95,7 @@ class TestSmoke_Vessels:
 
 
 # ---------------------------------------------------------------------------
-# Ports (1 subtest)
+# Ports (2 subtests)
 # ---------------------------------------------------------------------------
 
 
@@ -104,6 +104,33 @@ class TestSmoke_Ports:
         resp = client.ports.get("NLRTM")
         assert resp.port is not None
         assert resp.port.unlo_code == "NLRTM"
+
+    def test_inbound(self, client: VesselClient) -> None:
+        now = datetime.now(timezone.utc)
+        eta_from = now.isoformat()
+        eta_to = (now + timedelta(days=7)).isoformat()
+        resp = client.ports.inbound("NLRTM", eta_from=eta_from, eta_to=eta_to, pagination_limit=5)
+        assert resp is not None
+
+
+class TestSmoke_VesselETA_DestinationPort:
+    def test_destination_port(self, client: VesselClient) -> None:
+        # CMA CGM KHAO SOK — known to have active ETA with destination_port
+        resp = client.vessels.eta("9925837")
+        assert resp.vessel_eta is not None
+        assert resp.vessel_eta.destination_port is not None
+        assert len(resp.vessel_eta.destination_port) > 0
+
+
+class TestSmoke_Meta_Fallback:
+    def test_meta_fallback(self, client: VesselClient) -> None:
+        # Use an MMSI value but claim idType=imo to trigger fallback
+        resp = client.vessels.get("477045900", filter_id_type="imo")
+        assert resp.vessel is not None
+        assert resp.meta is not None
+        assert resp.meta.requested_id_type == "imo"
+        assert resp.meta.resolved_id_type == "mmsi"
+        assert resp.meta.resolved_id == 477045900
 
 
 # ---------------------------------------------------------------------------
