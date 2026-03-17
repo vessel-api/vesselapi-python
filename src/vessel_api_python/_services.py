@@ -130,9 +130,9 @@ class VesselsService:
         error_from_response(r.status_code, r.content)
         return TypesOwnershipResponse.model_validate(r.json())
 
-    def positions(self, *, filter_id_type: str = "imo", filter_ids: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> VesselPositionsResponse:
+    def positions(self, *, filter_id_type: str = "imo", filter_ids: str | None = None, time_from: str | None = None, time_to: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> VesselPositionsResponse:
         """Retrieve positions for multiple vessels."""
-        r = self._client.get("/vessels/positions", params=_strip_none({"filter.idType": filter_id_type, "filter.ids": filter_ids, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
+        r = self._client.get("/vessels/positions", params=_strip_none({"filter.idType": filter_id_type, "filter.ids": filter_ids, "time.from": time_from, "time.to": time_to, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
         error_from_response(r.status_code, r.content)
         return VesselPositionsResponse.model_validate(r.json())
 
@@ -322,15 +322,15 @@ class SearchService:
     def __init__(self, client: httpx.Client) -> None:
         self._client = client
 
-    def vessels(self, *, filter_name: str | None = None, filter_imo: str | None = None, filter_mmsi: str | None = None, filter_flag: str | None = None, filter_vessel_type: str | None = None, filter_callsign: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> FindVesselsResponse:
+    def vessels(self, *, filter_name: str | None = None, filter_imo: str | None = None, filter_mmsi: str | None = None, filter_flag: str | None = None, filter_vessel_type: str | None = None, filter_callsign: str | None = None, filter_year_built_min: int | None = None, filter_year_built_max: int | None = None, filter_class_society: str | None = None, filter_owner: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> FindVesselsResponse:
         """Search for vessels by name, callsign, flag, type, and other filters."""
-        r = self._client.get("/search/vessels", params=_strip_none({"filter.name": filter_name, "filter.imo": filter_imo, "filter.mmsi": filter_mmsi, "filter.flag": filter_flag, "filter.vesselType": filter_vessel_type, "filter.callsign": filter_callsign, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
+        r = self._client.get("/search/vessels", params=_strip_none({"filter.name": filter_name, "filter.imo": filter_imo, "filter.mmsi": filter_mmsi, "filter.flag": filter_flag, "filter.vesselType": filter_vessel_type, "filter.callsign": filter_callsign, "filter.yearBuiltMin": filter_year_built_min, "filter.yearBuiltMax": filter_year_built_max, "filter.classSociety": filter_class_society, "filter.owner": filter_owner, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
         error_from_response(r.status_code, r.content)
         return FindVesselsResponse.model_validate(r.json())
 
-    def ports(self, *, filter_name: str | None = None, filter_country: str | None = None, filter_port_type: str | None = None, filter_region: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> FindPortsResponse:
+    def ports(self, *, filter_name: str | None = None, filter_country: str | None = None, filter_port_type: str | None = None, filter_size: str | None = None, filter_region: str | None = None, filter_harbor_size: str | None = None, filter_harbor_use: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> FindPortsResponse:
         """Search for ports by name, country, type, region, and other filters."""
-        r = self._client.get("/search/ports", params=_strip_none({"filter.name": filter_name, "filter.country": filter_country, "filter.type": filter_port_type, "filter.region": filter_region, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
+        r = self._client.get("/search/ports", params=_strip_none({"filter.name": filter_name, "filter.country": filter_country, "filter.type": filter_port_type, "filter.size": filter_size, "filter.region": filter_region, "filter.harborSize": filter_harbor_size, "filter.harborUse": filter_harbor_use, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
         error_from_response(r.status_code, r.content)
         return FindPortsResponse.model_validate(r.json())
 
@@ -427,15 +427,15 @@ class LocationService:
     def __init__(self, client: httpx.Client) -> None:
         self._client = client
 
-    def vessels_bounding_box(self, *, lat_min: float | None = None, lat_max: float | None = None, lon_min: float | None = None, lon_max: float | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> VesselsWithinLocationResponse:
+    def vessels_bounding_box(self, *, lat_min: float | None = None, lat_max: float | None = None, lon_min: float | None = None, lon_max: float | None = None, time_from: str | None = None, time_to: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> VesselsWithinLocationResponse:
         """Retrieve vessel positions within a bounding box."""
-        r = self._client.get("/location/vessels/bounding-box", params=_strip_none({"filter.latBottom": lat_min, "filter.latTop": lat_max, "filter.lonLeft": lon_min, "filter.lonRight": lon_max, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
+        r = self._client.get("/location/vessels/bounding-box", params=_strip_none({"filter.latBottom": lat_min, "filter.latTop": lat_max, "filter.lonLeft": lon_min, "filter.lonRight": lon_max, "time.from": time_from, "time.to": time_to, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
         error_from_response(r.status_code, r.content)
         return VesselsWithinLocationResponse.model_validate(r.json())
 
-    def vessels_radius(self, *, latitude: float | None = None, longitude: float | None = None, radius: float | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> VesselsWithinLocationResponse:
+    def vessels_radius(self, *, latitude: float | None = None, longitude: float | None = None, radius: float | None = None, time_from: str | None = None, time_to: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> VesselsWithinLocationResponse:
         """Retrieve vessel positions within a radius."""
-        r = self._client.get("/location/vessels/radius", params=_strip_none({"filter.latitude": latitude, "filter.longitude": longitude, "filter.radius": radius, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
+        r = self._client.get("/location/vessels/radius", params=_strip_none({"filter.latitude": latitude, "filter.longitude": longitude, "filter.radius": radius, "time.from": time_from, "time.to": time_to, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
         error_from_response(r.status_code, r.content)
         return VesselsWithinLocationResponse.model_validate(r.json())
 
@@ -710,9 +710,9 @@ class AsyncVesselsService:
         error_from_response(r.status_code, r.content)
         return TypesOwnershipResponse.model_validate(r.json())
 
-    async def positions(self, *, filter_id_type: str = "imo", filter_ids: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> VesselPositionsResponse:
+    async def positions(self, *, filter_id_type: str = "imo", filter_ids: str | None = None, time_from: str | None = None, time_to: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> VesselPositionsResponse:
         """Retrieve positions for multiple vessels."""
-        r = await self._client.get("/vessels/positions", params=_strip_none({"filter.idType": filter_id_type, "filter.ids": filter_ids, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
+        r = await self._client.get("/vessels/positions", params=_strip_none({"filter.idType": filter_id_type, "filter.ids": filter_ids, "time.from": time_from, "time.to": time_to, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
         error_from_response(r.status_code, r.content)
         return VesselPositionsResponse.model_validate(r.json())
 
@@ -902,15 +902,15 @@ class AsyncSearchService:
     def __init__(self, client: httpx.AsyncClient) -> None:
         self._client = client
 
-    async def vessels(self, *, filter_name: str | None = None, filter_imo: str | None = None, filter_mmsi: str | None = None, filter_flag: str | None = None, filter_vessel_type: str | None = None, filter_callsign: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> FindVesselsResponse:
+    async def vessels(self, *, filter_name: str | None = None, filter_imo: str | None = None, filter_mmsi: str | None = None, filter_flag: str | None = None, filter_vessel_type: str | None = None, filter_callsign: str | None = None, filter_year_built_min: int | None = None, filter_year_built_max: int | None = None, filter_class_society: str | None = None, filter_owner: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> FindVesselsResponse:
         """Search for vessels."""
-        r = await self._client.get("/search/vessels", params=_strip_none({"filter.name": filter_name, "filter.imo": filter_imo, "filter.mmsi": filter_mmsi, "filter.flag": filter_flag, "filter.vesselType": filter_vessel_type, "filter.callsign": filter_callsign, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
+        r = await self._client.get("/search/vessels", params=_strip_none({"filter.name": filter_name, "filter.imo": filter_imo, "filter.mmsi": filter_mmsi, "filter.flag": filter_flag, "filter.vesselType": filter_vessel_type, "filter.callsign": filter_callsign, "filter.yearBuiltMin": filter_year_built_min, "filter.yearBuiltMax": filter_year_built_max, "filter.classSociety": filter_class_society, "filter.owner": filter_owner, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
         error_from_response(r.status_code, r.content)
         return FindVesselsResponse.model_validate(r.json())
 
-    async def ports(self, *, filter_name: str | None = None, filter_country: str | None = None, filter_port_type: str | None = None, filter_region: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> FindPortsResponse:
+    async def ports(self, *, filter_name: str | None = None, filter_country: str | None = None, filter_port_type: str | None = None, filter_size: str | None = None, filter_region: str | None = None, filter_harbor_size: str | None = None, filter_harbor_use: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> FindPortsResponse:
         """Search for ports."""
-        r = await self._client.get("/search/ports", params=_strip_none({"filter.name": filter_name, "filter.country": filter_country, "filter.type": filter_port_type, "filter.region": filter_region, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
+        r = await self._client.get("/search/ports", params=_strip_none({"filter.name": filter_name, "filter.country": filter_country, "filter.type": filter_port_type, "filter.size": filter_size, "filter.region": filter_region, "filter.harborSize": filter_harbor_size, "filter.harborUse": filter_harbor_use, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
         error_from_response(r.status_code, r.content)
         return FindPortsResponse.model_validate(r.json())
 
@@ -1007,15 +1007,15 @@ class AsyncLocationService:
     def __init__(self, client: httpx.AsyncClient) -> None:
         self._client = client
 
-    async def vessels_bounding_box(self, *, lat_min: float | None = None, lat_max: float | None = None, lon_min: float | None = None, lon_max: float | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> VesselsWithinLocationResponse:
+    async def vessels_bounding_box(self, *, lat_min: float | None = None, lat_max: float | None = None, lon_min: float | None = None, lon_max: float | None = None, time_from: str | None = None, time_to: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> VesselsWithinLocationResponse:
         """Retrieve vessel positions within a bounding box."""
-        r = await self._client.get("/location/vessels/bounding-box", params=_strip_none({"filter.latBottom": lat_min, "filter.latTop": lat_max, "filter.lonLeft": lon_min, "filter.lonRight": lon_max, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
+        r = await self._client.get("/location/vessels/bounding-box", params=_strip_none({"filter.latBottom": lat_min, "filter.latTop": lat_max, "filter.lonLeft": lon_min, "filter.lonRight": lon_max, "time.from": time_from, "time.to": time_to, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
         error_from_response(r.status_code, r.content)
         return VesselsWithinLocationResponse.model_validate(r.json())
 
-    async def vessels_radius(self, *, latitude: float | None = None, longitude: float | None = None, radius: float | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> VesselsWithinLocationResponse:
+    async def vessels_radius(self, *, latitude: float | None = None, longitude: float | None = None, radius: float | None = None, time_from: str | None = None, time_to: str | None = None, pagination_limit: int | None = None, pagination_next_token: str | None = None) -> VesselsWithinLocationResponse:
         """Retrieve vessel positions within a radius."""
-        r = await self._client.get("/location/vessels/radius", params=_strip_none({"filter.latitude": latitude, "filter.longitude": longitude, "filter.radius": radius, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
+        r = await self._client.get("/location/vessels/radius", params=_strip_none({"filter.latitude": latitude, "filter.longitude": longitude, "filter.radius": radius, "time.from": time_from, "time.to": time_to, "pagination.limit": pagination_limit, "pagination.nextToken": pagination_next_token}))
         error_from_response(r.status_code, r.content)
         return VesselsWithinLocationResponse.model_validate(r.json())
 
