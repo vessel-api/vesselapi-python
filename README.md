@@ -1,5 +1,18 @@
 # vesselapi-python
 
+> [!WARNING]
+> **This version is no longer maintained.** Several endpoints wrapped by 1.x
+> were retired from the VesselAPI service on 10 August 2026 and now return
+> HTTP 410. Please upgrade:
+>
+> ```bash
+> pip install 'vessel-api-python>=2'
+> ```
+>
+> 2.x removes the retired surface, requires the parameters the API requires,
+> and adds unified search, repeatable filters and satellite position fallback.
+> See the CHANGELOG for migration notes.
+
 [![CI](https://github.com/vessel-api/vesselapi-python/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/vessel-api/vesselapi-python/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/vessel-api-python.svg)](https://pypi.org/project/vessel-api-python/)
 [![Python](https://img.shields.io/pypi/pyversions/vessel-api-python.svg)](https://pypi.org/project/vessel-api-python/)

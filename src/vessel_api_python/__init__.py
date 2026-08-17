@@ -8,6 +8,17 @@ Usage::
     result = client.search.vessels(filter_name="Ever Given")
 """
 
+import warnings as _warnings
+
+_warnings.warn(
+    "vessel-api-python 1.x is no longer maintained. Several endpoints it wraps "
+    "were retired from the service on 10 August 2026 and now return HTTP 410. "
+    "Upgrade to 2.x: pip install 'vessel-api-python>=2'. See the CHANGELOG for "
+    "the migration notes.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
 from ._client import AsyncVesselClient, VesselClient
 from ._constants import DEFAULT_BASE_URL, VERSION
 from ._errors import (
