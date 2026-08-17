@@ -164,8 +164,11 @@ def _calc_backoff(attempt: int, response: httpx.Response) -> float:
             pass
         # Try HTTP-date format (RFC 7231 section 7.1.3).
         try:
-            dt = parsedate_to_datetime(retry_after)
-            delta = (dt - _utcnow()).total_seconds()
+            # Annotated because typeshed types parsedate_to_datetime as Any on
+            # Python 3.9, which propagates through the subtraction and makes the
+            # return Any. Without this, mypy passes on 3.12 and fails on 3.9.
+            dt: datetime.datetime = parsedate_to_datetime(retry_after)
+            delta: float = (dt - _utcnow()).total_seconds()
             return max(0.0, min(delta, MAX_BACKOFF))
         except (ValueError, TypeError):
             pass
