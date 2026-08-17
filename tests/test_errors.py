@@ -9,7 +9,9 @@ import pytest
 from vessel_api_python import (
     VesselAPIError,
     VesselAuthError,
+    VesselForbiddenError,
     VesselNotFoundError,
+    VesselPaymentRequiredError,
     VesselRateLimitError,
     VesselServerError,
 )
@@ -99,9 +101,11 @@ class TestErrorFromResponse:
         assert exc_info.value.status_code == 500
 
     def test_other_4xx_raises_base_error(self) -> None:
+        # 409 stands in for "4xx with no dedicated subclass". This used to use
+        # 403, which now maps to VesselForbiddenError.
         with pytest.raises(VesselAPIError) as exc_info:
-            error_from_response(403, b"")
-        assert exc_info.value.status_code == 403
+            error_from_response(409, b"")
+        assert exc_info.value.status_code == 409
         assert type(exc_info.value) is VesselAPIError
 
     def test_parses_nested_json_error(self) -> None:
@@ -134,3 +138,42 @@ class TestErrorFromResponse:
         with pytest.raises(VesselAPIError) as exc_info:
             error_from_response(400, body)
         assert exc_info.value.body == body
+
+
+class TestPaymentRequiredAndForbidden:
+    """402 and 403 are declared in the spec (403 on every path, 402 on
+    /vessel/{id}/position) and mean very different things, so callers need to
+    tell them apart without string-matching the human-readable message.
+    """
+
+    def test_402_raises_payment_required_with_code(self) -> None:
+        body = b'{"error":{"type":"payment_required_error","code":"insufficient_credits","message":"Insufficient satellite credits"}}'
+        with pytest.raises(VesselPaymentRequiredError) as exc:
+            error_from_response(402, body)
+        e = exc.value
+        assert e.status_code == 402
+        assert e.is_payment_required is True
+        assert e.is_forbidden is False
+        assert e.code == "insufficient_credits"
+        assert e.error_type == "payment_required_error"
+
+    def test_403_raises_forbidden_with_code(self) -> None:
+        body = b'{"error":{"type":"forbidden_error","code":"feature_not_available","message":"Not on your plan"}}'
+        with pytest.raises(VesselForbiddenError) as exc:
+            error_from_response(403, body)
+        e = exc.value
+        assert e.is_forbidden is True
+        assert e.is_payment_required is False
+        assert e.is_auth_error is False  # distinct from 401
+        assert e.code == "feature_not_available"
+
+    def test_existing_codes_unaffected(self) -> None:
+        for status, exc_type in ((401, VesselAuthError), (404, VesselNotFoundError), (429, VesselRateLimitError)):
+            with pytest.raises(exc_type):
+                error_from_response(status, b'{"error":{"message":"x"}}')
+
+    def test_code_is_none_when_absent(self) -> None:
+        with pytest.raises(VesselPaymentRequiredError) as exc:
+            error_from_response(402, b'{"message":"no structured error"}')
+        assert exc.value.code is None
+        assert exc.value.error_type is None

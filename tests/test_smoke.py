@@ -56,37 +56,12 @@ class TestSmoke_Vessels:
         resp = client.vessels.casualties("9321483")
         assert resp is not None
 
-    def test_classification(self, client: VesselClient) -> None:
-        resp = client.vessels.classification("9121998")
-        assert resp.classification is not None
-
     def test_emissions(self, client: VesselClient) -> None:
         resp = client.vessels.emissions("1045356")
         assert resp is not None
 
     def test_eta(self, client: VesselClient) -> None:
         resp = client.vessels.eta("232003239", filter_id_type="mmsi")
-        assert resp is not None
-
-    def test_inspections(self, client: VesselClient) -> None:
-        resp = client.vessels.inspections("9121998")
-        assert resp is not None
-        if resp.inspection_count is not None and resp.inspection_count == 0:
-            pytest.skip("no inspections returned")
-
-    def test_inspection_detail(self, client: VesselClient) -> None:
-        insp_resp = client.vessels.inspections("9121998")
-        if not insp_resp.inspections:
-            pytest.skip("no inspections available to test detail endpoint")
-        detail_id = insp_resp.inspections[0].detail_id
-        if not detail_id:
-            pytest.skip("first inspection has no detail_id")
-        resp = client.vessels.inspection_detail("9121998", detail_id)
-        assert resp is not None
-        assert resp.detail_id == detail_id
-
-    def test_ownership(self, client: VesselClient) -> None:
-        resp = client.vessels.ownership("9121998")
         assert resp is not None
 
     def test_positions(self, client: VesselClient) -> None:
@@ -262,7 +237,9 @@ class TestSmoke_Search:
 
 class TestSmoke_Location:
     def test_vessels_bounding_box(self, client: VesselClient) -> None:
-        resp = client.location.vessels_bounding_box(lon_min=4.0, lon_max=5.0, lat_min=51.0, lat_max=52.0, pagination_limit=5)
+        resp = client.location.vessels_bounding_box(
+            lon_min=4.0, lon_max=5.0, lat_min=51.0, lat_max=52.0, pagination_limit=5
+        )
         assert resp is not None
 
     def test_vessels_radius(self, client: VesselClient) -> None:
@@ -270,7 +247,9 @@ class TestSmoke_Location:
         assert resp is not None
 
     def test_ports_bounding_box(self, client: VesselClient) -> None:
-        resp = client.location.ports_bounding_box(lon_min=4.0, lon_max=5.0, lat_min=51.0, lat_max=52.0, pagination_limit=5)
+        resp = client.location.ports_bounding_box(
+            lon_min=4.0, lon_max=5.0, lat_min=51.0, lat_max=52.0, pagination_limit=5
+        )
         assert resp is not None
         assert resp.ports is not None and len(resp.ports) > 0
 
@@ -280,7 +259,9 @@ class TestSmoke_Location:
         assert resp.ports is not None and len(resp.ports) > 0
 
     def test_dgps_bounding_box(self, client: VesselClient) -> None:
-        resp = client.location.dgps_bounding_box(lon_min=7.0, lon_max=9.0, lat_min=55.0, lat_max=56.0, pagination_limit=5)
+        resp = client.location.dgps_bounding_box(
+            lon_min=7.0, lon_max=9.0, lat_min=55.0, lat_max=56.0, pagination_limit=5
+        )
         assert resp is not None
 
     def test_dgps_radius(self, client: VesselClient) -> None:
@@ -288,7 +269,9 @@ class TestSmoke_Location:
         assert resp is not None
 
     def test_light_aids_bounding_box(self, client: VesselClient) -> None:
-        resp = client.location.light_aids_bounding_box(lon_min=4.0, lon_max=5.0, lat_min=51.0, lat_max=52.0, pagination_limit=5)
+        resp = client.location.light_aids_bounding_box(
+            lon_min=4.0, lon_max=5.0, lat_min=51.0, lat_max=52.0, pagination_limit=5
+        )
         assert resp is not None
 
     def test_light_aids_radius(self, client: VesselClient) -> None:
@@ -296,7 +279,9 @@ class TestSmoke_Location:
         assert resp is not None
 
     def test_modus_bounding_box(self, client: VesselClient) -> None:
-        resp = client.location.modus_bounding_box(lon_min=-89.0, lon_max=-88.0, lat_min=28.0, lat_max=29.0, pagination_limit=5)
+        resp = client.location.modus_bounding_box(
+            lon_min=-89.0, lon_max=-88.0, lat_min=28.0, lat_max=29.0, pagination_limit=5
+        )
         assert resp is not None
 
     def test_modus_radius(self, client: VesselClient) -> None:
@@ -304,7 +289,9 @@ class TestSmoke_Location:
         assert resp is not None
 
     def test_radio_beacons_bounding_box(self, client: VesselClient) -> None:
-        resp = client.location.radio_beacons_bounding_box(lon_min=-1.0, lon_max=1.0, lat_min=50.0, lat_max=51.0, pagination_limit=5)
+        resp = client.location.radio_beacons_bounding_box(
+            lon_min=-1.0, lon_max=1.0, lat_min=50.0, lat_max=51.0, pagination_limit=5
+        )
         assert resp is not None
 
     def test_radio_beacons_radius(self, client: VesselClient) -> None:
@@ -313,25 +300,6 @@ class TestSmoke_Location:
 
 
 # ---------------------------------------------------------------------------
-# Navtex (1 subtest)
-# ---------------------------------------------------------------------------
-
-
-class TestSmoke_Navtex:
-    def test_list(self, client: VesselClient) -> None:
-        now = datetime.now(timezone.utc)
-        day_ago = (now - timedelta(hours=24)).isoformat()
-        resp = client.navtex.list(time_from=day_ago, time_to=now.isoformat(), pagination_limit=5)
-        assert resp is not None
-
-
-# ===========================================================================
-# Bad-param tests
-# ===========================================================================
-
-
-# ---------------------------------------------------------------------------
-# Bad-param: Vessels
 # ---------------------------------------------------------------------------
 
 
@@ -354,26 +322,6 @@ class TestSmoke_Vessels_BadParams:
     def test_eta_not_found(self, client: VesselClient) -> None:
         with pytest.raises(VesselAPIError) as exc_info:
             client.vessels.eta("0000000")
-        _require_api_error(exc_info, 404)
-
-    def test_classification_not_found(self, client: VesselClient) -> None:
-        with pytest.raises(VesselAPIError) as exc_info:
-            client.vessels.classification("0000000")
-        _require_api_error(exc_info, 404)
-
-    def test_ownership_not_found(self, client: VesselClient) -> None:
-        with pytest.raises(VesselAPIError) as exc_info:
-            client.vessels.ownership("0000000")
-        _require_api_error(exc_info, 404)
-
-    def test_inspections_not_found(self, client: VesselClient) -> None:
-        with pytest.raises(VesselAPIError) as exc_info:
-            client.vessels.inspections("0000000")
-        _require_api_error(exc_info, 404)
-
-    def test_inspection_detail_not_found(self, client: VesselClient) -> None:
-        with pytest.raises(VesselAPIError) as exc_info:
-            client.vessels.inspection_detail("0000000", "nonexistent")
         _require_api_error(exc_info, 404)
 
     def test_casualties_not_found(self, client: VesselClient) -> None:
@@ -550,7 +498,9 @@ class TestSmoke_Location_BadParams:
 
     def test_vessels_bounding_box_pagination_too_high(self, client: VesselClient) -> None:
         with pytest.raises(VesselAPIError) as exc_info:
-            client.location.vessels_bounding_box(lon_min=4.0, lon_max=5.0, lat_min=51.0, lat_max=52.0, pagination_limit=999)
+            client.location.vessels_bounding_box(
+                lon_min=4.0, lon_max=5.0, lat_min=51.0, lat_max=52.0, pagination_limit=999
+            )
         _require_api_error(exc_info, 400)
 
     def test_ports_radius_too_large(self, client: VesselClient) -> None:
@@ -585,17 +535,4 @@ class TestSmoke_Location_BadParams:
 
 
 # ---------------------------------------------------------------------------
-# Bad-param: Navtex
 # ---------------------------------------------------------------------------
-
-
-class TestSmoke_Navtex_BadParams:
-    def test_list_malformed_time_from(self, client: VesselClient) -> None:
-        with pytest.raises(VesselAPIError) as exc_info:
-            client.navtex.list(time_from="not-a-date")
-        _require_api_error(exc_info, 400)
-
-    def test_list_pagination_limit_negative(self, client: VesselClient) -> None:
-        with pytest.raises(VesselAPIError) as exc_info:
-            client.navtex.list(pagination_limit=-1)
-        _require_api_error(exc_info, 400)

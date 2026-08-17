@@ -24,14 +24,12 @@ from ._constants import (
 from ._services import (
     AsyncEmissionsService,
     AsyncLocationService,
-    AsyncNavtexService,
     AsyncPortEventsService,
     AsyncPortsService,
     AsyncSearchService,
     AsyncVesselsService,
     EmissionsService,
     LocationService,
-    NavtexService,
     PortEventsService,
     PortsService,
     SearchService,
@@ -91,7 +89,6 @@ class VesselClient:
         self.emissions = EmissionsService(self._client)
         self.search = SearchService(self._client)
         self.location = LocationService(self._client)
-        self.navtex = NavtexService(self._client)
 
     def close(self) -> None:
         """Close the underlying HTTP client and release resources."""
@@ -150,7 +147,6 @@ class AsyncVesselClient:
         self.emissions = AsyncEmissionsService(self._client)
         self.search = AsyncSearchService(self._client)
         self.location = AsyncLocationService(self._client)
-        self.navtex = AsyncNavtexService(self._client)
 
     async def aclose(self) -> None:
         """Close the underlying HTTP client and release resources."""

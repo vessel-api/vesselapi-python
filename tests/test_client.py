@@ -24,7 +24,6 @@ class TestVesselClientConstruction:
         assert client.emissions is not None
         assert client.search is not None
         assert client.location is not None
-        assert client.navtex is not None
         client.close()
 
     def test_default_base_url(self) -> None:
@@ -90,7 +89,6 @@ class TestAsyncVesselClientConstruction:
         assert client.emissions is not None
         assert client.search is not None
         assert client.location is not None
-        assert client.navtex is not None
 
     def test_negative_max_retries_clamped_to_zero(self) -> None:
         client = AsyncVesselClient(api_key="test-key", max_retries=-5)
@@ -100,3 +98,24 @@ class TestAsyncVesselClientConstruction:
     async def test_async_context_manager(self) -> None:
         async with AsyncVesselClient(api_key="test-key") as client:
             assert client.vessels is not None
+
+
+class TestVersionConsistency:
+    """VERSION must track the packaged version.
+
+    1.3.0 shipped with VERSION = "1.1.0", so every request from it reported the
+    wrong client version in its User-Agent. Nothing caught that, because the two
+    values live in different files and neither is derived from the other.
+    """
+
+    def test_version_matches_package_metadata(self) -> None:
+        from importlib.metadata import version
+
+        from vessel_api_python._constants import VERSION
+
+        assert version("vessel-api-python") == VERSION
+
+    def test_user_agent_reports_that_version(self) -> None:
+        from vessel_api_python._constants import DEFAULT_USER_AGENT, VERSION
+
+        assert DEFAULT_USER_AGENT.endswith(f"/{VERSION}")

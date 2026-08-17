@@ -12,8 +12,10 @@ class TestSyncIterator:
 
     def test_single_page(self) -> None:
         """Iterator returns all items from a single page."""
+
         def fetch():
             return [1, 2, 3], None
+
         it = SyncIterator(fetch)
         assert list(it) == [1, 2, 3]
 
@@ -33,15 +35,19 @@ class TestSyncIterator:
 
     def test_empty_result(self) -> None:
         """Iterator handles empty result set."""
+
         def fetch():
             return [], None
+
         it = SyncIterator(fetch)
         assert list(it) == []
 
     def test_error_on_first_page(self) -> None:
         """Iterator propagates errors from first fetch."""
+
         def fetch():
             raise RuntimeError("API error")
+
         it = SyncIterator(fetch)
         with pytest.raises(RuntimeError, match="API error"):
             list(it)
@@ -66,8 +72,10 @@ class TestSyncIterator:
 
     def test_collect(self) -> None:
         """collect() returns all items as a list."""
+
         def fetch():
             return [1, 2, 3], None
+
         it = SyncIterator(fetch)
         assert it.collect() == [1, 2, 3]
 
@@ -90,6 +98,7 @@ class TestAsyncIterator:
     async def test_single_page(self) -> None:
         async def fetch():
             return [1, 2, 3], None
+
         it = AsyncIterator(fetch)
         result = await it.collect()
         assert result == [1, 2, 3]
@@ -113,6 +122,7 @@ class TestAsyncIterator:
     async def test_empty_result(self) -> None:
         async def fetch():
             return [], None
+
         it = AsyncIterator(fetch)
         result = await it.collect()
         assert result == []
@@ -121,6 +131,7 @@ class TestAsyncIterator:
     async def test_async_for_loop(self) -> None:
         async def fetch():
             return ["a", "b"], None
+
         it = AsyncIterator(fetch)
         items = []
         async for item in it:
@@ -131,6 +142,7 @@ class TestAsyncIterator:
     async def test_error_propagation(self) -> None:
         async def fetch():
             raise RuntimeError("async error")
+
         it = AsyncIterator(fetch)
         with pytest.raises(RuntimeError, match="async error"):
             await it.collect()

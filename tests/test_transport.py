@@ -23,9 +23,7 @@ class TestAuthTransport:
         """Auth transport adds Authorization: Bearer header."""
         with respx.mock(base_url="https://example.com") as router:
             route = router.get("/test").mock(return_value=httpx.Response(200))
-            transport = AuthTransport(
-                httpx.HTTPTransport(), api_key="test-key", user_agent="test-agent"
-            )
+            transport = AuthTransport(httpx.HTTPTransport(), api_key="test-key", user_agent="test-agent")
             client = httpx.Client(base_url="https://example.com", transport=transport)
             client.get("/test")
             assert route.calls[0].request.headers["Authorization"] == "Bearer test-key"
@@ -35,9 +33,7 @@ class TestAuthTransport:
         """Auth transport adds User-Agent header."""
         with respx.mock(base_url="https://example.com") as router:
             route = router.get("/test").mock(return_value=httpx.Response(200))
-            transport = AuthTransport(
-                httpx.HTTPTransport(), api_key="key", user_agent="my-agent/1.0"
-            )
+            transport = AuthTransport(httpx.HTTPTransport(), api_key="key", user_agent="my-agent/1.0")
             client = httpx.Client(base_url="https://example.com", transport=transport)
             client.get("/test")
             assert route.calls[0].request.headers["User-Agent"] == "my-agent/1.0"
@@ -123,6 +119,7 @@ class TestRetryTransport:
 
     def test_max_retries_exhausted(self) -> None:
         """RetryTransport returns last response when max retries exhausted."""
+
         class AlwaysFailTransport(httpx.BaseTransport):
             def handle_request(self, request: httpx.Request) -> httpx.Response:
                 return httpx.Response(500)
@@ -173,6 +170,7 @@ class TestRetryTransport:
 
     def test_does_not_retry_transport_error_for_post(self) -> None:
         """RetryTransport does NOT retry TransportError for POST."""
+
         class AlwaysFailTransport(httpx.BaseTransport):
             def handle_request(self, request: httpx.Request) -> httpx.Response:
                 raise httpx.ConnectError("connection reset")

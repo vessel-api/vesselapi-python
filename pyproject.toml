@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "vessel-api-python"
-version = "1.3.0"
-description = "Python client for the Vessel Tracking API — maritime vessel tracking, port events, emissions, and navigation data."
+version = "2.0.0"
+description = "Python client for the Vessel Tracking API: maritime vessel tracking, port events, emissions, and nautical infrastructure."
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
@@ -49,6 +49,19 @@ Changelog = "https://github.com/vessel-api/vesselapi-python/releases"
 [tool.hatch.build.targets.wheel]
 packages = ["src/vessel_api_python"]
 
+# Scope the sdist explicitly. Hatchling's default is "everything not gitignored",
+# which pulls in the specification, the smoke tests and the CI workflows. Keep
+# this list to what a consumer of the package actually needs.
+[tool.hatch.build.targets.sdist]
+include = [
+  "src/vessel_api_python",
+  "README.md",
+  "CHANGELOG.md",
+  "LICENSE",
+  "SECURITY.md",
+  "pyproject.toml",
+]
+
 [tool.ruff]
 target-version = "py39"
 line-length = 120
@@ -58,7 +71,12 @@ select = ["E", "F", "I", "W", "UP", "B", "SIM"]
 ignore = ["E501"]  # Line length handled by formatter
 
 [tool.mypy]
-python_version = "3.9"
+# 3.10 is the lowest version current mypy accepts. The package still supports
+# 3.9 (see requires-python): that floor is enforced by ruff's target-version
+# below, which rejects 3.10-only idioms, and verified by the 3.9 job in the CI
+# matrix, which runs the full test suite. Setting 3.9 here is silently ignored
+# by mypy, which then checks against whatever interpreter it happens to run on.
+python_version = "3.10"
 strict = true
 warn_return_any = true
 warn_unused_configs = true

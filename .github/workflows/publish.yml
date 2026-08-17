@@ -18,6 +18,30 @@ jobs:
         with:
           python-version: "3.12"
 
+      # A PyPI version can never be re-uploaded or replaced, so everything that
+      # can be checked is checked before anything is built. The smoke suite is
+      # deliberately excluded: it needs a live API key and a working network,
+      # and neither should decide whether a release ships.
+      - name: Verify before publishing
+        run: |
+          pip install -e ".[dev]"
+          ruff check src/ tests/
+          ruff format --check src/ tests/
+          mypy src/vessel_api_python/
+          pytest -q -m "not smoke" tests/
+
+      # Guards against tagging a version the package does not declare, which
+      # would publish under the wrong number and be unfixable afterwards.
+      - name: Check the tag matches the declared version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pkg="$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml","rb"))["project"]["version"])')"
+          if [ "$tag" != "$pkg" ]; then
+            echo "tag ${GITHUB_REF_NAME} declares $tag but pyproject.toml says $pkg"
+            exit 1
+          fi
+          echo "tag ${GITHUB_REF_NAME} matches pyproject version $pkg"
+
       - run: pip install build
       - run: python -m build
 

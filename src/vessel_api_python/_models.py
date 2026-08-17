@@ -1,8 +1,17 @@
 """Pydantic v2 models for the Vessel Tracking API.
 
-Models are generated from the OpenAPI spec and follow Python conventions.
+Models follow Python conventions. They are maintained by hand — there is no code
+generator — but they now cover every property of every response definition in
+openapi/swagger.json. Error payloads are the one deliberate exception: they are
+surfaced as exceptions in ``_errors`` rather than as models here.
+
+Because pydantic silently drops unmodelled keys, a property added to the spec
+must be added here too or callers lose the data with no error. When the spec
+changes, diff it against these classes.
+
 All optional fields use ``type | None = None`` and JSON field mapping uses
-``Field(alias="camelCase")`` where the API returns camelCase keys.
+``Field(alias="camelCase")`` where the API returns camelCase keys. Note that
+``Vessel`` is snake_case on the wire and so needs no aliases.
 """
 
 from __future__ import annotations
@@ -60,180 +69,13 @@ class VesselFormerName(_Base):
     year_until: str | None = None
 
 
-class BroadcastStation(_Base):
-    """NAVTEX radio broadcast station details."""
-
-    country: str | None = None
-    coverage: str | None = None
-    latitude: float | None = None
-    longitude: float | None = None
-    name: str | None = None
-    station_id: str | None = None
-
-
-# ---------------------------------------------------------------------------
-# Classification sub-models
-# ---------------------------------------------------------------------------
-
-
-class ClassificationPurpose(_Base):
-    """Purpose entry within classification identification."""
-
-    description: str | None = None
-    is_main_purpose: bool | None = Field(default=None, alias="isMainPurpose")
-    purpose: str | None = None
-
-
-class ClassificationCertificate(_Base):
-    """Certificate entry within vessel classification."""
-
-    certificate: str | None = None
-    code: str | None = None
-    expires: str | None = None
-    ext_until: str | None = Field(default=None, alias="extUntil")
-    issued: str | None = None
-    term: str | None = None
-    type: str | None = None
-
-
-class ClassificationCondition(_Base):
-    """Condition entry within vessel classification."""
-
-    condition: str | None = None
-    due_date: str | None = Field(default=None, alias="dueDate")
-    imposed_date: str | None = Field(default=None, alias="imposedDate")
-
-
-class ClassificationDimensions(_Base):
-    """Vessel dimensions from classification data."""
-
-    bm: float | None = None
-    dm: float | None = None
-    draught: float | None = None
-    dwt: float | None = None
-    gross_ton_69: float | None = Field(default=None, alias="grossTon69")
-    lbp: float | None = None
-    length_overall: float | None = Field(default=None, alias="lengthOverall")
-    net_ton_69: float | None = Field(default=None, alias="netTon69")
-
-
-class ClassificationHull(_Base):
-    """Hull details from classification data."""
-
-    decks_number: str | None = Field(default=None, alias="decksNumber")
-
-
-class ClassificationIdentification(_Base):
-    """Identification details from classification data."""
-
-    class_status_string: str | None = Field(default=None, alias="classStatusString")
-    flag_code: str | None = Field(default=None, alias="flagCode")
-    flag_name: str | None = Field(default=None, alias="flagName")
-    home_port: str | None = Field(default=None, alias="homePort")
-    imo_number: str | None = Field(default=None, alias="imoNumber")
-    non_class_relation_string: str | None = Field(
-        default=None, alias="nonClassRelationString"
-    )
-    official_number: str | None = Field(default=None, alias="officialNumber")
-    operational_status_string: str | None = Field(
-        default=None, alias="operationalStatusString"
-    )
-    purposes: list[ClassificationPurpose] | None = None
-    register_: str | None = Field(default=None, alias="register")
-    signal_letters: str | None = Field(default=None, alias="signalLetters")
-    type_formatted: str | None = Field(default=None, alias="typeFormatted")
-    vessel_id: str | None = Field(default=None, alias="vesselId")
-    vessel_name: str | None = Field(default=None, alias="vesselName")
-
-
-class ClassificationInfo(_Base):
-    """Classification notation and class status details."""
-
-    class_entry_date: str | None = Field(default=None, alias="classEntryDate")
-    class_notation_string: str | None = Field(
-        default=None, alias="classNotationString"
-    )
-    class_notation_string_design: str | None = Field(
-        default=None, alias="classNotationStringDesign"
-    )
-    class_notation_string_in_operation: str | None = Field(
-        default=None, alias="classNotationStringInOperation"
-    )
-    class_notation_string_main: str | None = Field(
-        default=None, alias="classNotationStringMain"
-    )
-    construction_symbol: str | None = Field(default=None, alias="constructionSymbol")
-    dual_class: str | None = Field(default=None, alias="dualClass")
-    equipment_number: str | None = Field(default=None, alias="equipmentNumber")
-    last_classification_society: str | None = Field(
-        default=None, alias="lastClassificationSociety"
-    )
-    main_class: str | None = Field(default=None, alias="mainClass")
-    main_class_machinery: str | None = Field(
-        default=None, alias="mainClassMachinery"
-    )
-    register_notation_string: str | None = Field(
-        default=None, alias="registerNotationString"
-    )
-
-
-class ClassificationMachinery(_Base):
-    """Machinery details from classification data."""
-
-    main_propulsion: str | None = Field(default=None, alias="mainPropulsion")
-
-
-class ClassificationOwner(_Base):
-    """Owner/manager details from classification data."""
-
-    doc_holder_dnv_id: str | None = Field(default=None, alias="docHolderDnvId")
-    doc_holder_imo_number: str | None = Field(
-        default=None, alias="docHolderImoNumber"
-    )
-    doc_holder_name: str | None = Field(default=None, alias="docHolderName")
-    manager_dnv_id: str | None = Field(default=None, alias="managerDnvId")
-    manager_imo_number: str | None = Field(default=None, alias="managerImoNumber")
-    manager_name: str | None = Field(default=None, alias="managerName")
-    owner_dnv_id: str | None = Field(default=None, alias="ownerDnvId")
-    owner_imo_number: str | None = Field(default=None, alias="ownerImoNumber")
-    owner_name: str | None = Field(default=None, alias="ownerName")
-
-
-class ClassificationSurvey(_Base):
-    """Survey entry within vessel classification."""
-
-    category: str | None = None
-    due_from: str | None = Field(default=None, alias="dueFrom")
-    due_to: str | None = Field(default=None, alias="dueTo")
-    last_date: str | None = Field(default=None, alias="lastDate")
-    location: str | None = None
-    postponed: str | None = None
-    survey: str | None = None
-
-
-class ClassificationYard(_Base):
-    """Shipyard/builder details from classification data."""
-
-    contracted_builder: str | None = Field(default=None, alias="contractedBuilder")
-    contracted_builder_build_no: str | None = Field(
-        default=None, alias="contractedBuilderBuildNo"
-    )
-    date_of_build: str | None = Field(default=None, alias="dateOfBuild")
-    hull_yard_build_no: str | None = Field(default=None, alias="hullYardBuildNo")
-    hull_yard_name: str | None = Field(default=None, alias="hullYardName")
-    keel_date: str | None = Field(default=None, alias="keelDate")
-
-
-# ---------------------------------------------------------------------------
-# Resolution metadata
-# ---------------------------------------------------------------------------
-
-
 class ResolutionMeta(_Base):
     """Metadata about ID resolution fallback. Present when the API resolved using a different ID type."""
+
     requested_id_type: str | None = Field(default=None, alias="requestedIdType")
     resolved_id_type: str | None = Field(default=None, alias="resolvedIdType")
     resolved_id: int | None = Field(default=None, alias="resolvedId")
+    suggested_id_type: str | None = Field(default=None, alias="suggestedIdType")
 
 
 # ---------------------------------------------------------------------------
@@ -246,16 +88,17 @@ class Vessel(_Base):
 
     breadth: int | None = None
     breadth_unit: str | None = None
-    builder: str | None = None
     call_sign: str | None = None
-    class_society: str | None = None
     country: str | None = None
     country_code: str | None = None
     deadweight_tonnage: int | None = None
     draft: int | None = None
     draft_unit: str | None = None
+    draught_calculated_avg: float | None = None
+    draught_observed_max: float | None = None
     engine_model_name: str | None = None
     engine_type: int | None = None
+    eni: str | None = None
     former_names: list[VesselFormerName] | None = None
     gross_tonnage: int | None = None
     home_port: str | None = None
@@ -263,11 +106,15 @@ class Vessel(_Base):
     kilowatt_power: int | None = None
     length: int | None = None
     length_unit: str | None = None
-    manager_name: str | None = None
     mmsi: int | None = None
     name: str | None = None
+    name_ais: str | None = None
     operating_status: str | None = None
-    owner_name: str | None = None
+    speed_calculated_avg: float | None = None
+    speed_observed_max: float | None = None
+    summer_draught: float | None = None
+    teu: int | None = None
+    vessel_subtype: str | None = None
     vessel_type: str | None = None
     year_built: int | None = None
 
@@ -300,18 +147,14 @@ class VesselPosition(_Base):
 class VesselPositionResponse(_Base):
     """Response for a single vessel position lookup."""
 
-    vessel_position: VesselPosition | None = Field(
-        default=None, alias="vesselPosition"
-    )
+    vessel_position: VesselPosition | None = Field(default=None, alias="vesselPosition")
     meta: ResolutionMeta | None = Field(default=None, alias="_meta")
 
 
 class VesselPositionsResponse(_Base):
     """Response for multiple vessel positions."""
 
-    vessel_positions: list[VesselPosition] | None = Field(
-        default=None, alias="vesselPositions"
-    )
+    vessel_positions: list[VesselPosition] | None = Field(default=None, alias="vesselPositions")
     next_token: str | None = Field(default=None, alias="nextToken")
     meta: ResolutionMeta | None = Field(default=None, alias="_meta")
 
@@ -328,35 +171,21 @@ class MarineCasualty(_Base):
     casualty_report_nr: str | None = Field(default=None, alias="casualtyReportNr")
     cf_coding: list[str] | None = Field(default=None, alias="cfCoding")
     collected_at: str | None = Field(default=None, alias="collectedAt")
-    competent_authority: list[str] | None = Field(
-        default=None, alias="competentAuthority"
-    )
+    competent_authority: list[str] | None = Field(default=None, alias="competentAuthority")
     date_of_occurrence: str | None = Field(default=None, alias="dateOfOccurrence")
     deviation: list[str] | None = None
     event_type: list[str] | None = Field(default=None, alias="eventType")
-    finished_investigation: bool | None = Field(
-        default=None, alias="finishedInvestigation"
-    )
+    finished_investigation: bool | None = Field(default=None, alias="finishedInvestigation")
     imo_nr: list[str] | None = Field(default=None, alias="imoNr")
     interim_report: bool | None = Field(default=None, alias="interimReport")
-    investigating_state: str | None = Field(
-        default=None, alias="investigatingState"
-    )
+    investigating_state: str | None = Field(default=None, alias="investigatingState")
     lives_lost_total: str | None = Field(default=None, alias="livesLostTotal")
     name_of_ship: list[str] | None = Field(default=None, alias="nameOfShip")
-    occurrence_severity: str | None = Field(
-        default=None, alias="occurrenceSeverity"
-    )
+    occurrence_severity: str | None = Field(default=None, alias="occurrenceSeverity")
     occurrence_uuid: str | None = Field(default=None, alias="occurrenceUuid")
-    occurrence_with_persons: list[str] | None = Field(
-        default=None, alias="occurrenceWithPersons"
-    )
-    occurrence_with_ships: list[str] | None = Field(
-        default=None, alias="occurrenceWithShips"
-    )
-    people_injured_total: str | None = Field(
-        default=None, alias="peopleInjuredTotal"
-    )
+    occurrence_with_persons: list[str] | None = Field(default=None, alias="occurrenceWithPersons")
+    occurrence_with_ships: list[str] | None = Field(default=None, alias="occurrenceWithShips")
+    people_injured_total: str | None = Field(default=None, alias="peopleInjuredTotal")
     pollution: bool | None = None
     ship_craft_type: list[str] | None = Field(default=None, alias="shipCraftType")
     sr_coding: list[str] | None = Field(default=None, alias="srCoding")
@@ -367,34 +196,6 @@ class MarineCasualtiesResponse(_Base):
 
     casualties: list[MarineCasualty] | None = None
     next_token: str | None = Field(default=None, alias="nextToken")
-    meta: ResolutionMeta | None = Field(default=None, alias="_meta")
-
-
-class ClassificationVessel(_Base):
-    """Full vessel classification data with nested sub-objects."""
-
-    certificates: list[ClassificationCertificate] | None = None
-    classification: ClassificationInfo | None = None
-    collected_at: str | None = Field(default=None, alias="collectedAt")
-    conditions: list[ClassificationCondition] | None = None
-    dimensions: ClassificationDimensions | None = None
-    hull: ClassificationHull | None = None
-    identification: ClassificationIdentification | None = None
-    imo: int | None = None
-    machinery: ClassificationMachinery | None = None
-    owner: ClassificationOwner | None = None
-    surveys: list[ClassificationSurvey] | None = None
-    yard: ClassificationYard | None = None
-
-
-# Keep the ``Classification`` alias so existing code continues to work.
-Classification = ClassificationVessel
-
-
-class ClassificationResponse(_Base):
-    """Response for vessel classification."""
-
-    classification: ClassificationVessel | None = None
     meta: ResolutionMeta | None = Field(default=None, alias="_meta")
 
 
@@ -474,136 +275,12 @@ class VesselETAResponse(_Base):
 
 class PortInboundResponse(_Base):
     """Response containing vessels heading to a port."""
+
     vessel_etas: list[VesselETA] | None = Field(default=None, alias="vesselETAs")
     next_token: str | None = Field(default=None, alias="nextToken")
 
 
 # ---------------------------------------------------------------------------
-# Inspection models
-# ---------------------------------------------------------------------------
-
-
-class InspectionRecord(_Base):
-    """A port-state control inspection record (from types.Inspection)."""
-
-    authority: str | None = None
-    deficiencies: int | None = None
-    detail_id: str | None = None
-    detained: bool | None = None
-    imo: int | None = None
-    inspection_date: str | None = None
-    inspection_type: str | None = None
-    mou_region: str | None = None
-    port: str | None = None
-
-
-# Keep ``Inspection`` as an alias so existing imports keep working.
-Inspection = InspectionRecord
-
-
-class InspectionDeficiency(_Base):
-    """A deficiency entry from an inspection detail."""
-
-    category: str | None = None
-    count: int | None = None
-    deficiency: str | None = None
-
-
-class InspectionDetailRecord(_Base):
-    """Detailed inspection record with deficiency breakdown."""
-
-    authority: str | None = None
-    deficiencies: list[InspectionDeficiency] | None = None
-    deficiency_count: int | None = None
-    detail_id: str | None = None
-    detained: bool | None = None
-    detention_grounds: list[InspectionDeficiency] | None = None
-    imo: int | None = None
-    inspection_date: str | None = None
-    inspection_type: str | None = None
-    mou_region: str | None = None
-    port: str | None = None
-
-
-# Keep ``InspectionDetail`` as an alias so existing imports keep working.
-InspectionDetail = InspectionDetailRecord
-
-
-class InspectionsResponseData(_Base):
-    """Inner data of the inspections response (types.InspectionsResponse)."""
-
-    cached_at: str | None = None
-    imo: int | None = None
-    inspection_count: int | None = None
-    inspections: list[InspectionRecord] | None = None
-
-
-class TypesInspectionsResponse(_Base):
-    """Response for vessel inspections (wraps InspectionsResponseData)."""
-
-    cached_at: str | None = None
-    imo: int | None = None
-    inspection_count: int | None = None
-    inspections: list[InspectionRecord] | None = None
-
-
-class InspectionDetailResponseData(_Base):
-    """Inner data of the inspection detail response."""
-
-    cached_at: str | None = None
-    detail_id: str | None = None
-    imo: int | None = None
-    inspection_detail: InspectionDetailRecord | None = None
-
-
-class TypesInspectionDetailResponse(_Base):
-    """Response for a detailed inspection."""
-
-    cached_at: str | None = None
-    detail_id: str | None = None
-    imo: int | None = None
-    inspection_detail: InspectionDetailRecord | None = None
-
-
-# ---------------------------------------------------------------------------
-# Ownership models
-# ---------------------------------------------------------------------------
-
-
-class VesselOwnership(_Base):
-    """Vessel ownership and management details."""
-
-    doc_company: str | None = None
-    doc_company_address: str | None = None
-    imo: int | None = None
-    registered_owner: str | None = None
-    registered_owner_address: str | None = None
-    ship_manager: str | None = None
-    ship_manager_address: str | None = None
-
-
-# Keep ``Ownership`` as an alias so existing imports keep working.
-Ownership = VesselOwnership
-
-
-class OwnershipResponseData(_Base):
-    """Inner data of the ownership response (types.OwnershipResponse)."""
-
-    cached_at: str | None = None
-    imo: int | None = None
-    ownership: VesselOwnership | None = None
-
-
-class TypesOwnershipResponse(_Base):
-    """Response for vessel ownership."""
-
-    cached_at: str | None = None
-    imo: int | None = None
-    ownership: VesselOwnership | None = None
-
-
-# ---------------------------------------------------------------------------
-# Port models
 # ---------------------------------------------------------------------------
 
 
@@ -674,9 +351,7 @@ class PortEvent(_Base):
 class PortEventsResponse(_Base):
     """Response for port events list."""
 
-    port_events: list[PortEvent] | None = Field(
-        default=None, alias="portEvents"
-    )
+    port_events: list[PortEvent] | None = Field(default=None, alias="portEvents")
     next_token: str | None = Field(default=None, alias="nextToken")
     meta: ResolutionMeta | None = Field(default=None, alias="_meta")
 
@@ -693,11 +368,24 @@ class PortEventResponse(_Base):
 # ---------------------------------------------------------------------------
 
 
+class VesselSearchMeta(_Base):
+    """Metadata about which fields matched a vessel search query.
+
+    ``matched_on`` maps the index of a vessel in the ``vessels`` array to the
+    fields that matched it, e.g. ``{"0": ["eni"], "1": ["imo"]}``. Values are
+    arrays because one vessel can match on several fields at once.
+    """
+
+    matched_on: dict[str, list[str]] | None = Field(default=None, alias="matchedOn")
+    query: str | None = None
+
+
 class FindVesselsResponse(_Base):
     """Response for vessel search."""
 
     vessels: list[Vessel] | None = None
     next_token: str | None = Field(default=None, alias="nextToken")
+    meta: VesselSearchMeta | None = Field(default=None, alias="_meta")
 
 
 class FindPortsResponse(_Base):
@@ -735,9 +423,7 @@ class DGPSStation(_Base):
 class FindDGPSStationsResponse(_Base):
     """Response for DGPS station search."""
 
-    dgps_stations: list[DGPSStation] | None = Field(
-        default=None, alias="dgpsStations"
-    )
+    dgps_stations: list[DGPSStation] | None = Field(default=None, alias="dgpsStations")
     next_token: str | None = Field(default=None, alias="nextToken")
 
 
@@ -828,9 +514,7 @@ class RadioBeacon(_Base):
 class FindRadioBeaconsResponse(_Base):
     """Response for radio beacon search."""
 
-    radio_beacons: list[RadioBeacon] | None = Field(
-        default=None, alias="radioBeacons"
-    )
+    radio_beacons: list[RadioBeacon] | None = Field(default=None, alias="radioBeacons")
     next_token: str | None = Field(default=None, alias="nextToken")
 
 
@@ -856,9 +540,7 @@ class PortsWithinLocationResponse(_Base):
 class DGPSStationsWithinLocationResponse(_Base):
     """Response for DGPS station location queries."""
 
-    dgps_stations: list[DGPSStation] | None = Field(
-        default=None, alias="dgpsStations"
-    )
+    dgps_stations: list[DGPSStation] | None = Field(default=None, alias="dgpsStations")
     next_token: str | None = Field(default=None, alias="nextToken")
 
 
@@ -879,37 +561,9 @@ class MODUsWithinLocationResponse(_Base):
 class RadioBeaconsWithinLocationResponse(_Base):
     """Response for radio beacon location queries."""
 
-    radio_beacons: list[RadioBeacon] | None = Field(
-        default=None, alias="radioBeacons"
-    )
+    radio_beacons: list[RadioBeacon] | None = Field(default=None, alias="radioBeacons")
     next_token: str | None = Field(default=None, alias="nextToken")
 
 
 # ---------------------------------------------------------------------------
-# Navtex models
 # ---------------------------------------------------------------------------
-
-
-class Navtex(_Base):
-    """A NAVTEX maritime safety message."""
-
-    issuing_office: str | None = None
-    label: str | None = None
-    lines: list[str] | None = None
-    metarea_coordinator: str | None = None
-    metarea_id: str | None = None
-    metarea_name: str | None = None
-    metarea_region: str | None = None
-    metarea_stations: list[BroadcastStation] | None = None
-    raw_content: str | None = None
-    timestamp: str | None = None
-    wmo_header: str | None = None
-
-
-class NavtexMessagesResponse(_Base):
-    """Response for NAVTEX messages list."""
-
-    navtex_messages: list[Navtex] | None = Field(
-        default=None, alias="navtexMessages"
-    )
-    next_token: str | None = Field(default=None, alias="nextToken")
