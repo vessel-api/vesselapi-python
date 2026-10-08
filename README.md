@@ -97,11 +97,12 @@ print(f"{vessel.vessel.name} ({vessel.vessel.vessel_type})")
 pos = client.vessels.position("232003239", filter_id_type="mmsi")
 print(f"Position: {pos.vessel_position.latitude}, {pos.vessel_position.longitude}")
 
-# filter_sat=True falls back to satellite AIS when nothing is stored.
+# filter_sat=True falls back to satellite AIS when no recent terrestrial position is stored.
 # ⚠️ Satellite lookups draw on a prepaid balance and are charged per call.
 # Omit it unless you need that fallback.
 
-# Find all vessels within 10 km of Rotterdam.
+# Find vessels with an AIS position within 10 km of Rotterdam in the last 2 hours
+# (the default time window, at most 4 hours).
 nearby = client.location.vessels_radius(latitude=51.9225, longitude=4.47917, radius=10000)
 for v in nearby.vessels or []:
     print(f"{v.vessel_name} at {v.latitude}, {v.longitude}")
