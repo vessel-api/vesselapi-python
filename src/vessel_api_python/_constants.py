@@ -1,6 +1,6 @@
 """Constants for the Vessel API Python SDK."""
 
-VERSION = "2.1.0"
+VERSION = "2.1.1"
 DEFAULT_BASE_URL = "https://api.vesselapi.com/v1"
 DEFAULT_USER_AGENT = f"vesselapi-python/{VERSION}"
 DEFAULT_MAX_RETRIES = 3

@@ -127,7 +127,11 @@ class VesselResponse(_Base):
 
 
 class VesselPosition(_Base):
-    """A real-time vessel position record from AIS data."""
+    """A real-time vessel position record from AIS data.
+
+    ``suspected_glitch`` is true when the move from the previous clean report
+    implies a speed over 500 knots.
+    """
 
     cog: float | None = None
     heading: int | None = None
@@ -145,7 +149,7 @@ class VesselPosition(_Base):
 
 
 class PreviousPosition(_Base):
-    """The vessel's newest position report before the served one."""
+    """The vessel's newest position report before the returned one."""
 
     latitude: float | None = None
     longitude: float | None = None
@@ -153,9 +157,14 @@ class PreviousPosition(_Base):
 
 
 class PositionCheck(_Base):
-    """How the served position compares with the vessel's previous position report.
+    """How the returned position compares with the vessel's previous position report.
 
-    Only ``lookback_hours`` is present when no previous report falls within it.
+    ``lookback_hours`` is always present. ``identity_match`` is present only when a
+    vessel record exists and an identifier can be compared. It is true when the
+    returned position's identifiers match those in the record. The other fields
+    need a previous report within ``lookback_hours``. ``exceeds_typical_speed`` is
+    true when the implied speed exceeds the vessel's usual top speed (99th
+    percentile of its recent speeds).
     """
 
     previous_position: PreviousPosition | None = None
@@ -171,7 +180,9 @@ class PositionCheck(_Base):
 class VesselPositionResponse(_Base):
     """Response for a single vessel position lookup.
 
-    ``vessel`` and ``vessel_eta`` are ``None`` when the API holds no record for them.
+    ``vessel`` is ``None`` when no vessel record exists. ``vessel_eta`` is ``None``
+    when no destination or ETA is available, including when the lookup does not
+    finish in time.
     """
 
     vessel_position: VesselPosition | None = Field(default=None, alias="vesselPosition")
