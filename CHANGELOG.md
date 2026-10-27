@@ -3,6 +3,29 @@
 All notable changes to this package are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] - 2026-10-26
+
+### Added
+
+- `VesselPositionResponse` has three new fields, which the API returns on every
+  position response since 25 October 2026: `vessel` (a `Vessel`, as from
+  `vessels.get()`), `vessel_eta` (a `VesselETA`, as from `vessels.eta()`) and
+  `position_check` (the new `PositionCheck` model). `vessel` and `vessel_eta`
+  are `None` when the API holds no record for them. Earlier versions drop these
+  keys when parsing.
+- `PositionCheck` compares the position with the vessel's previous report from
+  the last 80 hours (`previous_position`, the new `PreviousPosition` model). It
+  gives the time and great-circle distance since then, and the speed and course
+  that would cover that distance. It also says whether that speed is more than
+  1.2 times the vessel's usual top speed, and whether the MMSI and IMO match.
+- `vessels.position()` takes `filter_sat_lookback_minutes` and
+  `filter_sat_max_age_minutes`, which set the satellite fallback's time windows.
+  Both the sync and async clients have them.
+
+### Changed
+
+- The bundled OpenAPI spec is synced with the API.
+
 ## [2.0.1] - 2026-10-08
 
 Documentation only. No method, parameter or model changed.

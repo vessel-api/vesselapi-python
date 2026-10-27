@@ -47,6 +47,61 @@ class TestVesselsService:
             result = client.vessels.position("9363728")
             assert result.vessel_position is not None
             assert result.vessel_position.latitude == 55.0
+            assert result.vessel is None
+            assert result.vessel_eta is None
+            assert result.position_check is None
+            client.close()
+
+    def test_position_enrichment(self) -> None:
+        body = {
+            "vesselPosition": {"imo": 9363728, "latitude": 51.9, "longitude": 4.1},
+            "vessel": {"imo": 9363728, "name": "Ever Given", "speed_observed_max": 20.8},
+            "vesselEta": {"imo": 9363728, "destination": "NLRTM", "eta": "2026-10-26T06:00:00Z"},
+            "positionCheck": {
+                "previous_position": {"timestamp": "2026-10-25T03:08:00Z", "latitude": 51.0, "longitude": 2.0},
+                "minutes_since_previous": 412,
+                "distance_nm": 96.3,
+                "implied_speed_kn": 14,
+                "implied_course": 87,
+                "exceeds_typical_speed": False,
+                "identity_match": True,
+                "lookback_hours": 80,
+            },
+        }
+        with respx.mock() as mock:
+            mock.get("https://api.vesselapi.com/v1/vessel/9363728/position").mock(
+                return_value=httpx.Response(200, json=body)
+            )
+            client = VesselClient(api_key="key", max_retries=0)
+            result = client.vessels.position("9363728")
+            assert result.vessel is not None
+            assert result.vessel.name == "Ever Given"
+            assert result.vessel_eta is not None
+            assert result.vessel_eta.destination == "NLRTM"
+            check = result.position_check
+            assert check is not None
+            assert check.lookback_hours == 80
+            assert check.previous_position is not None
+            assert check.previous_position.latitude == 51.0
+            assert check.minutes_since_previous == 412
+            assert check.distance_nm == 96.3
+            assert check.implied_course == 87
+            assert check.exceeds_typical_speed is False
+            assert check.identity_match is True
+            client.close()
+
+    def test_position_satellite_window_params(self) -> None:
+        with respx.mock() as mock:
+            route = mock.get("https://api.vesselapi.com/v1/vessel/9363728/position").mock(
+                return_value=httpx.Response(200, json={"vesselPosition": {"imo": 9363728}})
+            )
+            client = VesselClient(api_key="key", max_retries=0)
+            client.vessels.position(
+                "9363728", filter_sat=True, filter_sat_lookback_minutes=480, filter_sat_max_age_minutes=30
+            )
+            params = route.calls[0].request.url.params
+            assert params["filter.satLookbackMinutes"] == "480"
+            assert params["filter.satMaxAgeMinutes"] == "30"
             client.close()
 
 

@@ -144,10 +144,40 @@ class VesselPosition(_Base):
     vessel_name: str | None = None
 
 
+class PreviousPosition(_Base):
+    """The vessel's newest position report before the served one."""
+
+    latitude: float | None = None
+    longitude: float | None = None
+    timestamp: str | None = None
+
+
+class PositionCheck(_Base):
+    """How the served position compares with the vessel's previous position report.
+
+    Only ``lookback_hours`` is present when no previous report falls within it.
+    """
+
+    previous_position: PreviousPosition | None = None
+    minutes_since_previous: int | None = None
+    distance_nm: float | None = None
+    implied_speed_kn: float | None = None
+    implied_course: int | None = None
+    exceeds_typical_speed: bool | None = None
+    identity_match: bool | None = None
+    lookback_hours: int | None = None
+
+
 class VesselPositionResponse(_Base):
-    """Response for a single vessel position lookup."""
+    """Response for a single vessel position lookup.
+
+    ``vessel`` and ``vessel_eta`` are ``None`` when the API holds no record for them.
+    """
 
     vessel_position: VesselPosition | None = Field(default=None, alias="vesselPosition")
+    vessel: Vessel | None = None
+    vessel_eta: VesselETA | None = Field(default=None, alias="vesselEta")
+    position_check: PositionCheck | None = Field(default=None, alias="positionCheck")
     meta: ResolutionMeta | None = Field(default=None, alias="_meta")
 
 

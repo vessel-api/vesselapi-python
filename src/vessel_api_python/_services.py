@@ -94,15 +94,32 @@ class VesselsService:
         return VesselResponse.model_validate(r.json())
 
     def position(
-        self, vessel_id: str, *, filter_id_type: str = "imo", filter_sat: bool | None = None
+        self,
+        vessel_id: str,
+        *,
+        filter_id_type: str = "imo",
+        filter_sat: bool | None = None,
+        filter_sat_lookback_minutes: int | None = None,
+        filter_sat_max_age_minutes: int | None = None,
     ) -> VesselPositionResponse:
         """Retrieve the latest position for a vessel.
 
         ``filter_sat`` enables satellite AIS fallback; the server defaults it to false.
+        With ``filter_sat=True``, ``filter_sat_lookback_minutes`` (60 to 4800, default 180)
+        sets how old a satellite fix may be and still be returned.
+        ``filter_sat_max_age_minutes`` (15 to 4800, default 60, paid plans only) sets how
+        old a stored position may be before a satellite lookup is made.
         """
         r = self._client.get(
             f"/vessel/{vessel_id}/position",
-            params=_strip_none({"filter.idType": filter_id_type, "filter.sat": filter_sat}),
+            params=_strip_none(
+                {
+                    "filter.idType": filter_id_type,
+                    "filter.sat": filter_sat,
+                    "filter.satLookbackMinutes": filter_sat_lookback_minutes,
+                    "filter.satMaxAgeMinutes": filter_sat_max_age_minutes,
+                }
+            ),
         )
         error_from_response(r.status_code, r.content)
         return VesselPositionResponse.model_validate(r.json())
@@ -1561,15 +1578,32 @@ class AsyncVesselsService:
         return VesselResponse.model_validate(r.json())
 
     async def position(
-        self, vessel_id: str, *, filter_id_type: str = "imo", filter_sat: bool | None = None
+        self,
+        vessel_id: str,
+        *,
+        filter_id_type: str = "imo",
+        filter_sat: bool | None = None,
+        filter_sat_lookback_minutes: int | None = None,
+        filter_sat_max_age_minutes: int | None = None,
     ) -> VesselPositionResponse:
         """Retrieve the latest position for a vessel.
 
         ``filter_sat`` enables satellite AIS fallback; the server defaults it to false.
+        With ``filter_sat=True``, ``filter_sat_lookback_minutes`` (60 to 4800, default 180)
+        sets how old a satellite fix may be and still be returned.
+        ``filter_sat_max_age_minutes`` (15 to 4800, default 60, paid plans only) sets how
+        old a stored position may be before a satellite lookup is made.
         """
         r = await self._client.get(
             f"/vessel/{vessel_id}/position",
-            params=_strip_none({"filter.idType": filter_id_type, "filter.sat": filter_sat}),
+            params=_strip_none(
+                {
+                    "filter.idType": filter_id_type,
+                    "filter.sat": filter_sat,
+                    "filter.satLookbackMinutes": filter_sat_lookback_minutes,
+                    "filter.satMaxAgeMinutes": filter_sat_max_age_minutes,
+                }
+            ),
         )
         error_from_response(r.status_code, r.content)
         return VesselPositionResponse.model_validate(r.json())
