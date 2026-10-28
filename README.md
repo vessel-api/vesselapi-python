@@ -98,7 +98,7 @@ pos = client.vessels.position("232003239", filter_id_type="mmsi")
 print(f"Position: {pos.vessel_position.latitude}, {pos.vessel_position.longitude}")
 
 # filter_sat=True falls back to satellite AIS when no recent terrestrial position is stored.
-# ⚠️ Satellite lookups draw on a prepaid balance and are charged per call.
+# ⚠️ Satellite lookups draw on a prepaid balance: a credit is charged when a satellite fix is returned.
 # Omit it unless you need that fallback.
 
 # Find vessels with an AIS position within 10 km of Rotterdam in the last 2 hours
