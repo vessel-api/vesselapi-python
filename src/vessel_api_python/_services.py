@@ -109,6 +109,13 @@ class VesselsService:
         sets how old a satellite fix may be and still be returned.
         ``filter_sat_max_age_minutes`` (15 to 4800, default 60, paid plans only) sets how
         old a stored position may be before a satellite lookup is made.
+
+        .. deprecated::
+            ``filter_sat``, ``filter_sat_lookback_minutes`` and
+            ``filter_sat_max_age_minutes`` are deprecated. The satellite fallback
+            is withdrawn in its current form. From the cutoff date in the
+            ``Sunset`` header they are accepted and ignored and no credit is
+            charged.
         """
         r = self._client.get(
             f"/vessel/{vessel_id}/position",
@@ -1593,6 +1600,13 @@ class AsyncVesselsService:
         sets how old a satellite fix may be and still be returned.
         ``filter_sat_max_age_minutes`` (15 to 4800, default 60, paid plans only) sets how
         old a stored position may be before a satellite lookup is made.
+
+        .. deprecated::
+            ``filter_sat``, ``filter_sat_lookback_minutes`` and
+            ``filter_sat_max_age_minutes`` are deprecated. The satellite fallback
+            is withdrawn in its current form. From the cutoff date in the
+            ``Sunset`` header they are accepted and ignored and no credit is
+            charged.
         """
         r = await self._client.get(
             f"/vessel/{vessel_id}/position",

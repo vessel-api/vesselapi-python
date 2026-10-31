@@ -97,9 +97,7 @@ print(f"{vessel.vessel.name} ({vessel.vessel.vessel_type})")
 pos = client.vessels.position("232003239", filter_id_type="mmsi")
 print(f"Position: {pos.vessel_position.latitude}, {pos.vessel_position.longitude}")
 
-# filter_sat=True falls back to satellite AIS when no recent terrestrial position is stored.
-# ⚠️ Satellite lookups draw on a prepaid balance: a credit is charged when a satellite fix is returned.
-# Omit it unless you need that fallback.
+# filter_sat is deprecated: the satellite fallback is withdrawn in its current form.
 
 # Find vessels with an AIS position within 10 km of Rotterdam in the last 2 hours
 # (the default time window, at most 4 hours).
@@ -107,6 +105,8 @@ nearby = client.location.vessels_radius(latitude=51.9225, longitude=4.47917, rad
 for v in nearby.vessels or []:
     print(f"{v.vessel_name} at {v.latitude}, {v.longitude}")
 ```
+
+> **Deprecated.** The satellite fallback is withdrawn in its current form. Requests with `filter.sat=true` keep working for existing credit holders until the cutoff date and carry Deprecation and Sunset headers. From the cutoff date the parameter is accepted and ignored, the response carries a Warning header, and no credit is charged. Credit packs are no longer on sale; unspent credits are refunded on request to support@vesselapi.com. The cutoff date is given in the `Sunset` header.
 
 ## Search
 

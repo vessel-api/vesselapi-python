@@ -54,8 +54,12 @@ class VesselAPIError(Exception):
         """True if the error is a 402 Payment Required response.
 
         Returned when a satellite-backed call is made with no satellite credits
-        left. Retry without ``filter_sat`` to serve stored data instead, or top
-        up the balance.
+        left. Retry without ``filter_sat`` to serve stored data instead.
+
+        .. deprecated::
+            The satellite fallback is withdrawn in its current form. From the
+            cutoff date ``filter_sat`` is ignored and no satellite request
+            returns 402.
         """
         return self.status_code == 402
 
@@ -75,7 +79,12 @@ class VesselAuthError(VesselAPIError):
 
 
 class VesselPaymentRequiredError(VesselAPIError):
-    """Raised on 402 Payment Required responses (satellite credits exhausted)."""
+    """Raised on 402 Payment Required responses (satellite credits exhausted).
+
+    .. deprecated::
+        The satellite fallback is withdrawn in its current form. From the cutoff
+        date ``filter_sat`` is ignored and no satellite request returns 402.
+    """
 
 
 class VesselForbiddenError(VesselAPIError):
