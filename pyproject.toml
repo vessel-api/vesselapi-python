@@ -12,7 +12,7 @@ license = "MIT"
 authors = [
     { name = "Vessel API", email = "support@vesselapi.com" },
 ]
-keywords = ["vesselapi", "maritime", "vessel", "tracking", "ais", "sdk"]
+keywords = ["vesselapi", "maritime", "vessel", "tracking", "vessel-tracking", "ship-tracking", "shipping", "ais", "sdk"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
@@ -41,6 +41,7 @@ dev = [
 ]
 
 [project.urls]
+Homepage = "https://vesselapi.com"
 Documentation = "https://vesselapi.com/docs"
 Repository = "https://github.com/vessel-api/vesselapi-python"
 Issues = "https://github.com/vessel-api/vesselapi-python/issues"
